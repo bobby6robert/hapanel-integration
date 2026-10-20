@@ -1,0 +1,12 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "HA Panel",
+        "data": {"host": "Tablet IP address", "port": "Port", "api_token": "API token (optional)", "name": "Name"}
+      }
+    },
+    "error": {"cannot_connect": "Cannot connect to the tablet", "invalid_auth": "Invalid API token"},
+    "abort": {"already_configured": "This tablet is already configured"}
+  }
+}

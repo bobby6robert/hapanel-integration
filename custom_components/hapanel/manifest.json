@@ -1,0 +1,12 @@
+{
+  "domain": "hapanel",
+  "name": "HA Panel",
+  "version": "1.0.0",
+  "config_flow": true,
+  "iot_class": "local_polling",
+  "documentation": "https://github.com/bobby6robert/hapanel",
+  "issue_tracker": "https://github.com/bobby6robert/hapanel/issues",
+  "codeowners": [],
+  "requirements": [],
+  "dependencies": []
+}
