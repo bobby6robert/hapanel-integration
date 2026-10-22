@@ -1,0 +1,72 @@
+blueprint:
+  name: HA Panel – ochrona baterii tabletu (ładowanie w zakresie)
+  description: >
+    Włącza ładowarkę (gniazdko smart), gdy bateria tabletu spadnie poniżej dolnego progu,
+    i wyłącza ją powyżej górnego. Tablet na stałej ładowarce może spuchnąć, a trzymanie baterii
+    w zakresie 20-80% wydłuża jej życie. Dodatkowo co 10 minut i po starcie HA sprawdza stan,
+    więc pominięte zdarzenie lub restart nie zostawią ładowarki w złym stanie.
+    Gdy czujnik jest niedostępny, nic nie robi.
+  domain: automation
+  source_url: https://github.com/bobby6robert/hapanel-integration/blob/main/blueprints/automation/hapanel/battery_guard.yaml
+  input:
+    battery:
+      name: Czujnik baterii tabletu
+      selector:
+        entity:
+          domain: sensor
+          device_class: battery
+    charger:
+      name: Gniazdko ładowarki
+      selector:
+        entity:
+          domain: switch
+    low:
+      name: Włącz ładowanie poniżej (%)
+      default: 20
+      selector:
+        number:
+          min: 5
+          max: 50
+          unit_of_measurement: "%"
+    high:
+      name: Wyłącz ładowanie powyżej (%)
+      default: 80
+      selector:
+        number:
+          min: 50
+          max: 100
+          unit_of_measurement: "%"
+mode: single
+variables:
+  battery_entity: !input battery
+  low_pct: !input low
+  high_pct: !input high
+triggers:
+  - trigger: numeric_state
+    entity_id: !input battery
+    below: !input low
+  - trigger: numeric_state
+    entity_id: !input battery
+    above: !input high
+  - trigger: time_pattern
+    minutes: "/10"
+  - trigger: homeassistant
+    event: start
+actions:
+  - variables:
+      level: "{{ states(battery_entity) | float(-1) }}"
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ 0 <= level < (low_pct | float) }}"
+        sequence:
+          - action: switch.turn_on
+            target:
+              entity_id: !input charger
+      - conditions:
+          - condition: template
+            value_template: "{{ level > (high_pct | float) }}"
+        sequence:
+          - action: switch.turn_off
+            target:
+              entity_id: !input charger

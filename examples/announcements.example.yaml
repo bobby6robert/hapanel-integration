@@ -1,0 +1,17 @@
+# Przykład: komunikat głosowy na tablecie, gdy domownik dojeżdża do domu.
+alias: Panel – ktoś dojeżdża
+triggers:
+  - trigger: zone
+    entity_id: person.jan               # <-- ZMIEŃ
+    zone: zone.home
+    event: enter
+conditions:
+  - condition: time
+    after: "07:00:00"
+    before: "21:30:00"
+actions:
+  - action: hapanel.say
+    target: { entity_id: media_player.panel }
+    data:
+      message: "Jan jest już przy domu."
+      volume: 60

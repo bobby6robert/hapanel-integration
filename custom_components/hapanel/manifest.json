@@ -1,0 +1,20 @@
+{
+  "domain": "hapanel",
+  "name": "HA Panel",
+  "version": "1.5.0",
+  "config_flow": true,
+  "iot_class": "local_polling",
+  "documentation": "https://github.com/bobby6robert/hapanel-integration",
+  "issue_tracker": "https://github.com/bobby6robert/hapanel-integration/issues",
+  "codeowners": [
+    "@bobby6robert"
+  ],
+  "requirements": [],
+  "dependencies": [
+    "media_source",
+    "webhook"
+  ],
+  "zeroconf": [
+    "_hapanel._tcp.local."
+  ]
+}

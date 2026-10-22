@@ -1,0 +1,8 @@
+# Przykład: krótka informacja na zegar nocny tabletu (HA Panel 1.5 + aplikacja 2.5).
+# Utwórz czujnik i wybierz go w: Urządzenia i usługi → HA Panel → Konfiguruj → „Zegar nocny: dodatkowa informacja”.
+template:
+  - sensor:
+      - name: "Panel – zegar info"
+        state: >
+          {% if is_state('calendar.odpady', 'on') %}Dziś: {{ state_attr('calendar.odpady', 'message') }}
+          {% else %}{{ '' }}{% endif %}

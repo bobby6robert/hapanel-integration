@@ -1,0 +1,68 @@
+popup:
+  target:
+    entity:
+      integration: hapanel
+      domain: media_player
+  fields:
+    url:
+      required: true
+      example: "/lovelace/kamera"
+      selector:
+        text:
+    seconds:
+      default: 30
+      selector:
+        number:
+          min: 0
+          max: 600
+          unit_of_measurement: s
+    wake:
+      default: true
+      selector:
+        boolean:
+    title:
+      example: "Dzwonek – furtka"
+      selector:
+        text:
+say:
+  target:
+    entity:
+      integration: hapanel
+      domain: media_player
+  fields:
+    message:
+      required: true
+      example: "Robert będzie w domu za 5 minut"
+      selector:
+        text:
+    volume:
+      selector:
+        number:
+          min: 0
+          max: 100
+          unit_of_measurement: "%"
+    wake:
+      default: false
+      selector:
+        boolean:
+close_popup:
+  target:
+    entity:
+      integration: hapanel
+      domain: media_player
+export_settings:
+  target:
+    entity:
+      integration: hapanel
+      domain: media_player
+import_settings:
+  target:
+    entity:
+      integration: hapanel
+      domain: media_player
+  fields:
+    settings:
+      required: true
+      example: '{"dashboard": "https://ha.example.com", "zoom": "110"}'
+      selector:
+        object:

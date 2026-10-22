@@ -1,0 +1,25 @@
+# Przykład pakietu: alert o niedostępnym tablecie i ochrona baterii.
+automation:
+  - id: tablet_niedostepny
+    alias: Tablet – niedostępny
+    trigger:
+      - platform: state
+        entity_id: switch.panel_ekran
+        to: unavailable
+        for: "00:05:00"
+    action:
+      - action: notify.send_message
+        target: { entity_id: notify.your_phone }  # <-- ZMIEŃ: encja powiadomień telefonu
+        data:
+          title: Tablet nie odpowiada
+          message: Sprawdź zasilanie, Wi-Fi i aplikację HA Panel.
+
+  # Ładowanie przez gniazdko smart (25–80%) – odkomentuj i wpisz encję gniazdka.
+  # - id: tablet_laduj
+  #   alias: Tablet – włącz ładowanie
+  #   trigger: [{ platform: numeric_state, entity_id: sensor.panel_bateria, below: 25 }]
+  #   action: [{ action: switch.turn_on, target: { entity_id: switch.tablet_plug } }]
+  # - id: tablet_przestan_ladowac
+  #   alias: Tablet – wyłącz ładowanie
+  #   trigger: [{ platform: numeric_state, entity_id: sensor.panel_bateria, above: 80 }]
+  #   action: [{ action: switch.turn_off, target: { entity_id: switch.tablet_plug } }]

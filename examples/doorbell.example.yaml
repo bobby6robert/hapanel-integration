@@ -1,0 +1,26 @@
+# Przykład: dzwonek przy furtce z tabletem HA Panel.
+# Zamień nazwy oznaczone "<-- ZMIEŃ" na własne encje.
+alias: Dzwonek – tablet
+mode: single
+triggers:
+  - trigger: state
+    entity_id: binary_sensor.doorbell_button     # <-- ZMIEŃ: Twój czujnik dzwonka
+    to: "on"
+actions:
+  - action: hapanel.popup                        # okno z kamerą na wierzchu tabletu (budzi ekran)
+    target: { entity_id: media_player.panel }
+    data:
+      url: /lovelace/kamera                      # <-- ZMIEŃ: widok z kamerą na Twoim dashboardzie
+      seconds: 60
+      title: "🔔 Ktoś dzwoni do furtki"
+  - condition: time                              # dźwięk tylko w dzień
+    after: "06:00:00"
+    before: "22:00:00"
+  - action: media_player.play_media              # dzwonek na tablecie
+    target: { entity_id: media_player.panel }
+    data:
+      media_content_id: /local/dingdong.mp3      # plik w /config/www/
+      media_content_type: music
+  - action: hapanel.say                          # komunikat głosowy (Android TTS) z głośnością
+    target: { entity_id: media_player.panel }
+    data: { message: "Ktoś dzwoni do furtki", volume: 80 }

@@ -1,0 +1,173 @@
+{
+  "config": {
+    "flow_title": "{name} ({host})",
+    "step": {
+      "user": {
+        "title": "HA Panel",
+        "description": "The tablet is usually discovered automatically. You can add it manually here.",
+        "data": {
+          "host": "Tablet IP address",
+          "port": "Port",
+          "api_token": "API token (if set in the app)",
+          "name": "Name"
+        }
+      },
+      "zeroconf_confirm": {
+        "title": "HA Panel tablet discovered",
+        "description": "Found a tablet at {host}. Add it to Home Assistant? If the app already has an API token, enter it below.",
+        "data": {
+          "api_token": "API token"
+        }
+      },
+      "pair": {
+        "title": "Pairing code",
+        "description": "Enter the 6-digit pairing code shown on the tablet screen (waiting screen or settings).",
+        "data": {
+          "pair_code": "Pairing code"
+        }
+      },
+      "settings": {
+        "title": "Tablet settings",
+        "description": "These settings will be sent to the tablet automatically. For the microphone (intercom talk) the dashboard URL must start with https://. You can change them later in the integration options.",
+        "data": {
+          "dashboard_url": "Dashboard URL (primary)",
+          "fallback_urls": "Fallback URLs (one per line, e.g. local)",
+          "home_after": "Return to dashboard after (seconds, 0 = never)",
+          "sleep_after": "Sleep screen after (seconds, 0 = never)",
+          "motion": "Motion detection from camera",
+          "motion_threshold": "Motion sensitivity (lower = more sensitive)",
+          "wake_on_motion": "Wake screen on motion",
+          "auto_brightness": "Automatic brightness",
+          "lock_task": "Screen lock (app pinning)",
+          "night_enabled": "Night mode with clock (in the app)",
+          "night_start": "Night mode: start (HH:MM)",
+          "night_end": "Night mode: end (HH:MM)",
+          "night_brightness": "Night mode: brightness (1-255)",
+          "night_wake": "Night mode: return to clock after (seconds)",
+          "pin": "New settings PIN (min. 4 characters, empty = unchanged; not stored in HA)",
+          "zoom": "Text zoom (%, 100 = unchanged)",
+          "inject_css": "Custom CSS injected into pages",
+          "inject_js": "Custom JavaScript run after page load",
+          "wake_on_proximity": "Wake screen with proximity sensor",
+          "temp_out": "Night clock: outdoor temperature",
+          "temp_in": "Night clock: indoor temperature",
+          "clock_info": "Night clock: extra info (text entity)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-pair the tablet",
+        "description": "The tablet needs to be re-paired (e.g. after reinstalling the app). Enter the pairing code from the tablet screen. Settings will be sent again.",
+        "data": {
+          "pair_code": "Pairing code"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to the tablet",
+      "invalid_auth": "Invalid or missing API token",
+      "invalid_code": "Invalid pairing code",
+      "pin_short": "PIN must be at least 4 characters"
+    },
+    "abort": {
+      "already_configured": "This tablet is already configured",
+      "cannot_connect": "Cannot connect to the tablet",
+      "reauth_successful": "Tablet re-paired"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Tablet settings",
+        "description": "Changes are sent to the tablet immediately.",
+        "data": {
+          "dashboard_url": "Dashboard URL (primary)",
+          "fallback_urls": "Fallback URLs (one per line, e.g. local)",
+          "home_after": "Return to dashboard after (seconds, 0 = never)",
+          "sleep_after": "Sleep screen after (seconds, 0 = never)",
+          "motion": "Motion detection from camera",
+          "motion_threshold": "Motion sensitivity (lower = more sensitive)",
+          "wake_on_motion": "Wake screen on motion",
+          "auto_brightness": "Automatic brightness",
+          "lock_task": "Screen lock (app pinning)",
+          "night_enabled": "Night mode with clock (in the app)",
+          "night_start": "Night mode: start (HH:MM)",
+          "night_end": "Night mode: end (HH:MM)",
+          "night_brightness": "Night mode: brightness (1-255)",
+          "night_wake": "Night mode: return to clock after (seconds)",
+          "pin": "New settings PIN (min. 4 characters, empty = unchanged; not stored in HA)",
+          "zoom": "Text zoom (%, 100 = unchanged)",
+          "inject_css": "Custom CSS injected into pages",
+          "inject_js": "Custom JavaScript run after page load",
+          "wake_on_proximity": "Wake screen with proximity sensor",
+          "temp_out": "Night clock: outdoor temperature",
+          "temp_in": "Night clock: indoor temperature",
+          "clock_info": "Night clock: extra info (text entity)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to the tablet",
+      "pin_short": "PIN must be at least 4 characters"
+    }
+  },
+  "services": {
+    "popup": {
+      "name": "Popup",
+      "description": "Shows a page or camera on top, wakes the screen, and returns to the previous view after a while.",
+      "fields": {
+        "url": {
+          "name": "Adres",
+          "description": "Full URL or HA path, e.g. /lovelace/camera"
+        },
+        "seconds": {
+          "name": "Time (s)",
+          "description": "0 = no auto close"
+        },
+        "wake": {
+          "name": "Wake screen",
+          "description": "Wakes the screen and the night clock"
+        },
+        "title": {
+          "name": "Title",
+          "description": "Label in the top-left corner, e.g. “Doorbell”"
+        }
+      }
+    },
+    "close_popup": {
+      "name": "Close popup",
+      "description": "Closes the popup."
+    },
+    "export_settings": {
+      "name": "Export settings",
+      "description": "Returns a backup of the tablet settings (without PIN and tokens)."
+    },
+    "import_settings": {
+      "name": "Import settings",
+      "description": "Sends settings (JSON from export) to the tablet.",
+      "fields": {
+        "settings": {
+          "name": "Settings",
+          "description": "Object from export"
+        }
+      }
+    },
+    "say": {
+      "name": "Say on tablet",
+      "description": "Speaks a message with Android TTS on the tablet.",
+      "fields": {
+        "message": {
+          "name": "Message",
+          "description": "Text to speak"
+        },
+        "volume": {
+          "name": "Volume",
+          "description": "Sets volume before speaking (0–100)"
+        },
+        "wake": {
+          "name": "Wake screen",
+          "description": "Wakes the screen first"
+        }
+      }
+    }
+  }
+}

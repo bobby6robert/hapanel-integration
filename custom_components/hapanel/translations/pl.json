@@ -1,0 +1,173 @@
+{
+  "config": {
+    "flow_title": "{name} ({host})",
+    "step": {
+      "user": {
+        "title": "HA Panel",
+        "description": "Zwykle tablet wykrywa się sam. Tu możesz dodać go ręcznie.",
+        "data": {
+          "host": "Adres IP tabletu",
+          "port": "Port",
+          "api_token": "Token API (jeśli ustawiony w aplikacji)",
+          "name": "Nazwa"
+        }
+      },
+      "zeroconf_confirm": {
+        "title": "Wykryto tablet HA Panel",
+        "description": "Znaleziono tablet pod adresem {host}. Dodać go do Home Assistanta? Jeśli aplikacja ma już token API, wpisz go poniżej.",
+        "data": {
+          "api_token": "Token API"
+        }
+      },
+      "pair": {
+        "title": "Kod parowania",
+        "description": "Wpisz 6-cyfrowy kod parowania wyświetlony na ekranie tabletu (ekran oczekiwania lub ustawienia).",
+        "data": {
+          "pair_code": "Kod parowania"
+        }
+      },
+      "settings": {
+        "title": "Ustawienia tabletu",
+        "description": "Te ustawienia zostaną automatycznie wysłane na tablet. Dla mikrofonu (rozmowa przez domofon) adres dashboardu musi zaczynać się od https://. Zmienisz je później w opcjach integracji.",
+        "data": {
+          "dashboard_url": "Adres dashboardu (główny)",
+          "fallback_urls": "Adresy awaryjne (po jednym w linii, np. lokalny)",
+          "home_after": "Wróć do dashboardu po (sekundy, 0 = nigdy)",
+          "sleep_after": "Uśpij ekran po (sekundy, 0 = nigdy)",
+          "motion": "Wykrywanie ruchu z kamery",
+          "motion_threshold": "Czułość ruchu (mniej = czulej)",
+          "wake_on_motion": "Wybudzaj ekran po ruchu",
+          "auto_brightness": "Automatyczna jasność",
+          "lock_task": "Blokada ekranu (przypięcie aplikacji)",
+          "night_enabled": "Tryb nocny z zegarem (w aplikacji)",
+          "night_start": "Tryb nocny: początek (GG:MM)",
+          "night_end": "Tryb nocny: koniec (GG:MM)",
+          "night_brightness": "Tryb nocny: jasność (1-255)",
+          "night_wake": "Tryb nocny: powrót do zegara po (sekundy)",
+          "pin": "Nowy PIN do ustawień (min. 4 znaki, puste = bez zmian; nie jest zapisywany w HA)",
+          "zoom": "Powiększenie tekstu (%, 100 = bez zmian)",
+          "inject_css": "Własny CSS wstrzykiwany do stron",
+          "inject_js": "Własny JavaScript po załadowaniu strony",
+          "wake_on_proximity": "Wybudzaj ekran czujnikiem zbliżeniowym (ręka przy ekranie)",
+          "temp_out": "Zegar nocny: temperatura na zewnątrz",
+          "temp_in": "Zegar nocny: temperatura w domu",
+          "clock_info": "Zegar nocny: dodatkowa informacja (encja z tekstem)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Ponowne parowanie tabletu",
+        "description": "Tablet wymaga ponownego sparowania (np. po ponownej instalacji aplikacji). Wpisz kod parowania z ekranu tabletu. Ustawienia zostaną wysłane ponownie.",
+        "data": {
+          "pair_code": "Kod parowania"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Nie można połączyć się z tabletem",
+      "invalid_auth": "Nieprawidłowy lub brakujący token API",
+      "invalid_code": "Nieprawidłowy kod parowania",
+      "pin_short": "PIN musi mieć co najmniej 4 znaki"
+    },
+    "abort": {
+      "already_configured": "Ten tablet jest już skonfigurowany",
+      "cannot_connect": "Nie można połączyć się z tabletem",
+      "reauth_successful": "Tablet sparowany ponownie"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Ustawienia tabletu",
+        "description": "Zmiany zostaną od razu wysłane na tablet.",
+        "data": {
+          "dashboard_url": "Adres dashboardu (główny)",
+          "fallback_urls": "Adresy awaryjne (po jednym w linii, np. lokalny)",
+          "home_after": "Wróć do dashboardu po (sekundy, 0 = nigdy)",
+          "sleep_after": "Uśpij ekran po (sekundy, 0 = nigdy)",
+          "motion": "Wykrywanie ruchu z kamery",
+          "motion_threshold": "Czułość ruchu (mniej = czulej)",
+          "wake_on_motion": "Wybudzaj ekran po ruchu",
+          "auto_brightness": "Automatyczna jasność",
+          "lock_task": "Blokada ekranu (przypięcie aplikacji)",
+          "night_enabled": "Tryb nocny z zegarem (w aplikacji)",
+          "night_start": "Tryb nocny: początek (GG:MM)",
+          "night_end": "Tryb nocny: koniec (GG:MM)",
+          "night_brightness": "Tryb nocny: jasność (1-255)",
+          "night_wake": "Tryb nocny: powrót do zegara po (sekundy)",
+          "pin": "Nowy PIN do ustawień (min. 4 znaki, puste = bez zmian; nie jest zapisywany w HA)",
+          "zoom": "Powiększenie tekstu (%, 100 = bez zmian)",
+          "inject_css": "Własny CSS wstrzykiwany do stron",
+          "inject_js": "Własny JavaScript po załadowaniu strony",
+          "wake_on_proximity": "Wybudzaj ekran czujnikiem zbliżeniowym (ręka przy ekranie)",
+          "temp_out": "Zegar nocny: temperatura na zewnątrz",
+          "temp_in": "Zegar nocny: temperatura w domu",
+          "clock_info": "Zegar nocny: dodatkowa informacja (encja z tekstem)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Nie można połączyć się z tabletem",
+      "pin_short": "PIN musi mieć co najmniej 4 znaki"
+    }
+  },
+  "services": {
+    "popup": {
+      "name": "Okno podglądu",
+      "description": "Pokazuje stronę lub kamerę na wierzchu, wybudza ekran, a po czasie wraca do poprzedniego widoku.",
+      "fields": {
+        "url": {
+          "name": "Adres",
+          "description": "Pełny adres lub ścieżka w HA, np. /lovelace/kamera"
+        },
+        "seconds": {
+          "name": "Czas (s)",
+          "description": "0 = bez automatycznego zamykania"
+        },
+        "wake": {
+          "name": "Wybudź ekran",
+          "description": "Wybudza ekran i zegar nocny"
+        },
+        "title": {
+          "name": "Tytuł",
+          "description": "Napis w lewym górnym rogu okna, np. „Dzwonek – furtka”"
+        }
+      }
+    },
+    "close_popup": {
+      "name": "Zamknij okno podglądu",
+      "description": "Zamyka okno podglądu."
+    },
+    "export_settings": {
+      "name": "Eksportuj ustawienia",
+      "description": "Zwraca kopię ustawień tabletu (bez PIN-u i tokenów)."
+    },
+    "import_settings": {
+      "name": "Importuj ustawienia",
+      "description": "Wysyła ustawienia (JSON z eksportu) na tablet.",
+      "fields": {
+        "settings": {
+          "name": "Ustawienia",
+          "description": "Obiekt z eksportu"
+        }
+      }
+    },
+    "say": {
+      "name": "Powiedz na tablecie",
+      "description": "Odczytuje komunikat głosem Androida na tablecie.",
+      "fields": {
+        "message": {
+          "name": "Treść",
+          "description": "Tekst do odczytania"
+        },
+        "volume": {
+          "name": "Głośność",
+          "description": "Ustawia głośność przed komunikatem (0–100)"
+        },
+        "wake": {
+          "name": "Wybudź ekran",
+          "description": "Wybudza ekran przed komunikatem"
+        }
+      }
+    }
+  }
+}

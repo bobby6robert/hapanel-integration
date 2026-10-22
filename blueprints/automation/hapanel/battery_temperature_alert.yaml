@@ -1,0 +1,42 @@
+blueprint:
+  name: HA Panel – alert przegrzania baterii tabletu
+  description: >
+    Wysyła powiadomienie, gdy temperatura baterii tabletu przez 5 minut przekracza ustawiony próg.
+    Przegrzewanie przy ciągłym ładowaniu to pierwszy objaw puchnięcia baterii.
+  domain: automation
+  source_url: https://github.com/bobby6robert/hapanel-integration/blob/main/blueprints/automation/hapanel/battery_temperature_alert.yaml
+  input:
+    temp:
+      name: Czujnik temperatury baterii tabletu
+      selector:
+        entity:
+          domain: sensor
+          device_class: temperature
+    limit:
+      name: Próg temperatury (°C)
+      default: 40
+      selector:
+        number:
+          min: 30
+          max: 60
+          unit_of_measurement: "°C"
+    notify_target:
+      name: Powiadomienie (encja notify)
+      selector:
+        entity:
+          domain: notify
+mode: single
+variables:
+  temp_entity: !input temp
+triggers:
+  - trigger: numeric_state
+    entity_id: !input temp
+    above: !input limit
+    for: "00:05:00"
+actions:
+  - action: notify.send_message
+    target:
+      entity_id: !input notify_target
+    data:
+      title: Bateria tabletu jest za gorąca
+      message: "Temperatura baterii: {{ states(temp_entity) }} °C. Sprawdź wentylację i ładowarkę."
