@@ -25,6 +25,17 @@ Czego nie da się zrobić zdalnie: Android wymaga dotknięcia tabletu, żeby nad
 
 Wymaga Home Assistanta 2024.5 lub nowszego. Integracja odpytuje tablet co 15 s (`local_polling`). Wykrywanie wymaga, żeby HA i tablet były w tej samej sieci (mDNS nie przechodzi przez VLAN-y bez przekaźnika).
 
+## Nowości w 1.6 – Aurora (rozmowa głosowa)
+Wymaga aplikacji **HA Panel 2.7** (starsza aplikacja działa jak dotąd, a `hapanel.converse` mówi wtedy zwykłym komunikatem).
+- **Rozmowa z tabletem:** tablet wysyła nagranie do webhooka integracji, a integracja robi rozpoznanie mowy (STT), odpowiedź (agent konwersacji) i głos (TTS). Zapasowe silniki działają bez internetu.
+- **Osobni agenci dla dzieci i dorosłych**, godziny rozmów dla dzieci (domyślnie 6:30–21:00), rozpoznawanie rozmówcy („Kto ze mną rozmawia?”).
+- **Proste polecenia bez AI:** światło w pokoju dziecka, szum/kołysanka na sen z wyłącznikiem czasowym, bajka na telefon (skrypt `script.aurora_bajka_na_telefon`).
+- **Gwiazdki** za quizy i zadania, **pamięć** o domownikach (zadanie AI po każdej rozmowie), **dziennik rozmów** z tematami i alarmem o niepokojących treściach (zdarzenie `hapanel_conversation_end`).
+- Nowe usługi: `hapanel.converse` (powiedz i słuchaj), `hapanel.listen`, `hapanel.stop_talk`, `hapanel.aurora_forget`, `hapanel.aurora_stars`, `hapanel.aurora_today`.
+- Nowe czujniki: „Aurora – stan rozmowy”, „Aurora – słowo wybudzające”, „Aurora – rozmowy dziś”, „Aurora – gwiazdki”, „Aurora – pamięć”.
+- **Automatyczna aktualizacja aplikacji** (opcja): nowe wydanie z GitHuba instaluje się samo, tablet prosi tylko o jedno potwierdzenie.
+- Ustawienia: Opcje integracji → krok 2 „Aurora – rozmowa głosowa”. Domownicy i informacje o domu: czujniki z atrybutami `osoby` i `tekst` (przykład: `examples/aurora.example.yaml`).
+
 ## Nowości w 1.5
 
 Połączenie wersji 1.3 i 1.4 w jedną (wymaga aplikacji HA Panel 2.5; starsza aplikacja działa bez nowych funkcji):

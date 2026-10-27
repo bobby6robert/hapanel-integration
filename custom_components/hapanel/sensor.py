@@ -8,7 +8,10 @@ from homeassistant.const import (
     UnitOfTime,
 )
 
-from .const import DOMAIN
+from homeassistant.core import callback
+from homeassistant.helpers.dispatcher import async_dispatcher_connect
+
+from .const import DOMAIN, SIGNAL_AURORA
 from .entity import PanelEntity
 
 
@@ -45,7 +48,61 @@ async def async_setup_entry(hass, entry, async_add_entities):
         PanelSensor(c, entry, "url", "Aktualny adres", "url", diag=True, measurement=False),
         PanelSensor(c, entry, "missing", "Brakujące uprawnienia", "missing", diag=True, measurement=False,
                     empty_value="OK"),
+        PanelSensor(c, entry, "voice", "Aurora – stan rozmowy", "voice", measurement=False),
+        PanelSensor(c, entry, "wake_word", "Aurora – słowo wybudzające", "wake_word", diag=True, measurement=False),
     ])
+    # czujniki wspólne Aurory (pamięć, gwiazdki, rozmowy) – tylko przy pierwszym tablecie
+    first = sorted(e.entry_id for e in hass.config_entries.async_entries(DOMAIN))[:1]
+    if first == [entry.entry_id]:
+        async_add_entities([AuroraSensor(c, entry, "talks"), AuroraSensor(c, entry, "stars"),
+                            AuroraSensor(c, entry, "memory")])
+
+
+class AuroraSensor(PanelEntity, SensorEntity):
+    """Aurora: rozmowy dziś (z tematami), gwiazdki dzieci i pamięć o domownikach."""
+
+    _NAMES = {"talks": "Aurora – rozmowy dziś", "stars": "Aurora – gwiazdki", "memory": "Aurora – pamięć"}
+    _ICONS = {"talks": "mdi:chat-processing-outline", "stars": "mdi:star-shooting", "memory": "mdi:brain"}
+
+    def __init__(self, c, entry, kind):
+        super().__init__(c, entry, f"aurora_{kind}", self._NAMES[kind])
+        self._kind = kind
+        self._attr_icon = self._ICONS[kind]
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        self.async_on_remove(async_dispatcher_connect(self.hass, SIGNAL_AURORA, self._updated))
+
+    @callback
+    def _updated(self) -> None:
+        self.async_write_ha_state()
+
+    @property
+    def _aurora(self):
+        return self.hass.data.get(f"{DOMAIN}_aurora")
+
+    @property
+    def native_value(self):
+        a = self._aurora
+        if a is None:
+            return None
+        if self._kind == "talks":
+            return len(a.today_log())
+        if self._kind == "stars":
+            return sum(int(v) for v in a.data["stars"].values())
+        return sum(len(v) for v in a.data["memory"].values())
+
+    @property
+    def extra_state_attributes(self):
+        a = self._aurora
+        if a is None:
+            return None
+        if self._kind == "talks":
+            log = a.today_log()
+            return {"rozmowy": log[-30:], "niepokoj": any(e.get("niepokoj") for e in log)}
+        if self._kind == "stars":
+            return {"osoby": dict(a.data["stars"])}
+        return {"osoby": {k: list(v)[-40:] for k, v in a.data["memory"].items()}}
 
 
 class PanelSensor(PanelEntity, SensorEntity):

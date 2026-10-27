@@ -1,0 +1,36 @@
+# HA Panel 1.6 – Aurora: przykładowy pakiet (packages/aurora_rozmowa.yaml)
+# 1) Domownicy: sensor z atrybutem „osoby” (lista). rola: dziecko / dorosły, swiatlo: światło w pokoju dziecka.
+# 2) Informacje o domu: sensor z atrybutem „tekst” – Aurora korzysta z nich w rozmowie.
+template:
+  - sensor:
+      - name: "Aurora domownicy"
+        unique_id: aurora_domownicy
+        state: "{{ 3 }}"
+        attributes:
+          osoby: >
+            {{ [
+              {'id': 'anna', 'imie': 'Anna', 'aliasy': ['mama'], 'rola': 'dorosły'},
+              {'id': 'piotr', 'imie': 'Piotr', 'aliasy': ['tata'], 'rola': 'dorosły'},
+              {'id': 'zosia', 'imie': 'Zosia', 'aliasy': ['zośka'], 'rola': 'dziecko', 'opis': '8 lat, 2 klasa',
+               'swiatlo': 'light.pokoj_zosi'}
+            ] }}
+      - name: "Aurora kontekst"
+        unique_id: aurora_kontekst
+        state: "{{ now().strftime('%H:%M') }}"
+        attributes:
+          tekst: >
+            Pogoda: {{ states('weather.home') }}, {{ state_attr('weather.home', 'temperature') }} °C.
+            Kto jest w domu: {{ states.person | selectattr('state', 'eq', 'home') | map(attribute='name') | join(', ') or 'nikt' }}.
+
+automation:
+  - alias: "Aurora – dobranoc dla Zosi"
+    triggers:
+      - trigger: time
+        at: "20:15:00"
+    actions:
+      - action: hapanel.converse
+        target:
+          entity_id: media_player.panel
+        data:
+          person: zosia
+          message: "Zosiu, pora szykować się do snu. Chcesz krótką bajkę na dobranoc?"

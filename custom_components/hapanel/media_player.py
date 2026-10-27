@@ -40,6 +40,26 @@ async def async_setup_entry(hass, entry, async_add_entities):
         },
         "async_say",
     )
+    platform.async_register_entity_service(
+        "converse",
+        {
+            vol.Required("message"): str,
+            vol.Optional("person", default=""): str,
+            vol.Optional("listen", default=True): bool,
+            vol.Optional("wait"): vol.All(vol.Coerce(int), vol.Range(min=3, max=30)),
+            vol.Optional("volume"): vol.All(vol.Coerce(int), vol.Range(min=0, max=100)),
+        },
+        "async_converse",
+    )
+    platform.async_register_entity_service(
+        "listen",
+        {
+            vol.Optional("person", default=""): str,
+            vol.Optional("wait"): vol.All(vol.Coerce(int), vol.Range(min=3, max=30)),
+        },
+        "async_listen",
+    )
+    platform.async_register_entity_service("stop_talk", {}, "async_stop_talk")
     platform.async_register_entity_service("close_popup", {}, "async_close_popup")
     platform.async_register_entity_service(
         "export_settings", {}, "async_export_settings", supports_response=SupportsResponse.ONLY
@@ -60,6 +80,7 @@ class PanelPlayer(PanelEntity, MediaPlayerEntity):
 
     def __init__(self, c, entry):
         super().__init__(c, entry, "player", None)  # nazwa = nazwa urządzenia
+        self._entry = entry
 
     @property
     def state(self):
@@ -97,6 +118,37 @@ class PanelPlayer(PanelEntity, MediaPlayerEntity):
         if volume is not None:
             params["volume"] = volume
         await self._cmd("/tts", **params)
+
+    async def async_converse(self, message: str, person: str = "", listen: bool = True,
+                             wait: int | None = None, volume: int | None = None) -> None:
+        """Aurora mówi komunikat naturalnym głosem (TTS z ustawień), a potem słucha odpowiedzi."""
+        from homeassistant.util import dt as dt_util
+
+        aurora = self.hass.data.get(f"{DOMAIN}_aurora")
+        url = ""
+        if aurora is not None:
+            url = await aurora.tts_url(dict(self._entry.options), message)
+            aurora.last_announce[self._entry.entry_id] = {"text": message, "person": person, "at": dt_util.now()}
+        params = {"text": message, "person": person, "listen": "1" if listen else "0"}
+        if url:
+            params["url"] = url
+        if wait is not None:
+            params["wait"] = wait
+        if volume is not None:
+            params["volume"] = volume
+        try:
+            await self._cmd("/converse", **params)
+        except Exception:  # noqa: BLE001  (aplikacja < 2.7: zwykły komunikat)
+            await self.async_say(message, volume, True)
+
+    async def async_listen(self, person: str = "", wait: int | None = None) -> None:
+        params = {"person": person}
+        if wait is not None:
+            params["wait"] = wait
+        await self._cmd("/listen", **params)
+
+    async def async_stop_talk(self) -> None:
+        await self._cmd("/stoptalk")
 
     async def async_close_popup(self) -> None:
         await self._cmd("/closepopup")

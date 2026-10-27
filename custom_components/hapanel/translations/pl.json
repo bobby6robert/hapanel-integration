@@ -103,6 +103,38 @@
           "temp_in": "Zegar nocny: temperatura w domu",
           "clock_info": "Zegar nocny: dodatkowa informacja (encja z tekstem)"
         }
+      },
+      "voice": {
+        "title": "Aurora – rozmowa głosowa",
+        "description": "Rozmowa z tabletem: po komunikatach, przyciskiem ✦, słowem wybudzającym i machnięciem ręką. Wymaga aplikacji HA Panel 2.7. Osoby i informacje o domu podaje się w czujnikach (atrybuty „osoby” i „tekst”) – przykład w examples/aurora.example.yaml.",
+        "data": {
+          "voice_enabled": "Rozmowa głosowa włączona",
+          "assistant_name": "Imię asystentki",
+          "stt_entity": "Rozpoznawanie mowy (główne)",
+          "stt_fallback": "Rozpoznawanie mowy (zapasowe, lokalne)",
+          "tts_entity": "Głos (główny)",
+          "tts_fallback": "Głos (zapasowy, lokalny)",
+          "agent_adult": "Agent rozmowy dla dorosłych (może sterować domem)",
+          "agent_child": "Agent rozmowy dla dzieci (bez sterowania)",
+          "agent_fallback": "Agent zapasowy (bez internetu)",
+          "ai_task_entity": "Zadania AI (pamięć i podsumowania rozmów)",
+          "persons_entity": "Czujnik z listą domowników (atrybut „osoby”)",
+          "context_entity": "Czujnik z informacjami o domu (atrybut „tekst”)",
+          "child_from": "Dzieci mogą rozmawiać od (GG:MM)",
+          "child_to": "Dzieci mogą rozmawiać do (GG:MM)",
+          "sleep_sound_url": "Adres szumu/kołysanki na sen (mp3)",
+          "sleep_sound_minutes": "Szum na sen – czas",
+          "talk_button": "Przycisk ✦ „Porozmawiaj z Aurorą” na tablecie",
+          "proximity_talk": "Dwa machnięcia ręką = rozmowa",
+          "wake_word": "Słowo wybudzające (rozpoznawane na tablecie)",
+          "wake_word_text": "Słowo wybudzające",
+          "wake_presence_only": "Słowo tylko, gdy ktoś jest przy tablecie",
+          "wake_quiet_start": "Cisza nocna słowa – od (GG:MM)",
+          "wake_quiet_end": "Cisza nocna słowa – do (GG:MM)",
+          "listen_wait": "Po komunikacie czekaj na odpowiedź",
+          "silence_ms": "Koniec wypowiedzi po ciszy",
+          "auto_update": "Automatyczna aktualizacja aplikacji (jedno potwierdzenie na tablecie)"
+        }
       }
     },
     "error": {
@@ -168,6 +200,82 @@
           "description": "Wybudza ekran przed komunikatem"
         }
       }
+    },
+    "converse": {
+      "name": "Aurora: powiedz i słuchaj",
+      "description": "Aurora mówi komunikat naturalnym głosem, a potem słucha odpowiedzi i prowadzi rozmowę.",
+      "fields": {
+        "message": {
+          "name": "Komunikat",
+          "description": "Tekst do powiedzenia"
+        },
+        "person": {
+          "name": "Do kogo",
+          "description": "Identyfikator osoby z listy domowników, np. wiki"
+        },
+        "listen": {
+          "name": "Słuchaj odpowiedzi",
+          "description": "Po komunikacie włącz mikrofon"
+        },
+        "wait": {
+          "name": "Czekaj na odpowiedź",
+          "description": "Sekundy na początek mowy"
+        },
+        "volume": {
+          "name": "Głośność",
+          "description": "0–100"
+        }
+      }
+    },
+    "listen": {
+      "name": "Aurora: słuchaj",
+      "description": "Włącza nasłuch i rozmowę bez komunikatu.",
+      "fields": {
+        "person": {
+          "name": "Kto",
+          "description": "Identyfikator osoby (opcjonalnie)"
+        },
+        "wait": {
+          "name": "Czekaj",
+          "description": "Sekundy na początek mowy"
+        }
+      }
+    },
+    "stop_talk": {
+      "name": "Aurora: zakończ rozmowę",
+      "description": "Przerywa rozmowę na tablecie."
+    },
+    "aurora_forget": {
+      "name": "Aurora: zapomnij",
+      "description": "Usuwa z pamięci Aurory wszystko o osobie albo fakty zawierające podany tekst.",
+      "fields": {
+        "person": {
+          "name": "Osoba",
+          "description": "Identyfikator, np. wiki"
+        },
+        "fact": {
+          "name": "Fakt",
+          "description": "Fragment tekstu (puste = wszystko)"
+        }
+      }
+    },
+    "aurora_stars": {
+      "name": "Aurora: gwiazdki",
+      "description": "Dodaje lub odejmuje gwiazdki.",
+      "fields": {
+        "person": {
+          "name": "Osoba",
+          "description": "Identyfikator, np. wiki"
+        },
+        "add": {
+          "name": "Ile",
+          "description": "Liczba (ujemna odejmuje)"
+        }
+      }
+    },
+    "aurora_today": {
+      "name": "Aurora: dzisiejsze rozmowy",
+      "description": "Zwraca dziennik dzisiejszych rozmów, gwiazdki i pamięć (do podsumowań)."
     }
   }
 }

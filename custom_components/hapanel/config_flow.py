@@ -11,7 +11,9 @@ from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.network import NoURLAvailableError, get_url
 from homeassistant.helpers.selector import (
-    EntitySelector, EntitySelectorConfig, TextSelector, TextSelectorConfig, TextSelectorType,
+    BooleanSelector, ConversationAgentSelector, ConversationAgentSelectorConfig, EntitySelector,
+    EntitySelectorConfig, NumberSelector, NumberSelectorConfig, NumberSelectorMode, TextSelector,
+    TextSelectorConfig, TextSelectorType,
 )
 from homeassistant.helpers.service_info.zeroconf import ZeroconfServiceInfo
 
@@ -22,7 +24,53 @@ from .const import (
     CONF_NIGHT_START, CONF_NIGHT_WAKE, CONF_PIN, CONF_SLEEP_AFTER, CONF_TOKEN, CONF_WAKE_ON_MOTION,
     CONF_ZOOM, CONF_WAKE_ON_PROX, CONF_TEMP_OUT, CONF_TEMP_IN, CONF_CLOCK_INFO,
     DEFAULT_PORT, DOMAIN,
+    CONF_AGENT_ADULT, CONF_AGENT_CHILD, CONF_AGENT_FALLBACK, CONF_AI_TASK, CONF_ASSISTANT_NAME, CONF_AUTO_UPDATE,
+    CONF_CHILD_FROM, CONF_CHILD_TO, CONF_CONTEXT, CONF_LISTEN_WAIT, CONF_PERSONS, CONF_PROXIMITY_TALK,
+    CONF_SILENCE_MS, CONF_SLEEP_SOUND, CONF_SLEEP_SOUND_MIN, CONF_STT, CONF_STT_FALLBACK, CONF_TALK_BUTTON,
+    CONF_TTS, CONF_TTS_FALLBACK, CONF_VOICE, CONF_WAKE_PRESENCE, CONF_WAKE_QUIET_END, CONF_WAKE_QUIET_START,
+    CONF_WAKE_WORD, CONF_WAKE_WORD_TEXT, DEFAULT_ASSISTANT_NAME,
 )
+
+
+def _sv(d: dict, key: str) -> dict:
+    return {"suggested_value": d.get(key)} if d.get(key) not in (None, "") else {}
+
+
+def voice_schema(d: dict) -> vol.Schema:
+    """Aurora – rozmowa głosowa (aplikacja 2.7+)."""
+    agent = ConversationAgentSelector(ConversationAgentSelectorConfig(language="pl"))
+    num = lambda lo, hi, unit=None: NumberSelector(NumberSelectorConfig(  # noqa: E731
+        min=lo, max=hi, mode=NumberSelectorMode.BOX, unit_of_measurement=unit))
+    return vol.Schema({
+        vol.Optional(CONF_VOICE, default=d.get(CONF_VOICE, True)): BooleanSelector(),
+        vol.Optional(CONF_ASSISTANT_NAME, default=d.get(CONF_ASSISTANT_NAME, DEFAULT_ASSISTANT_NAME)): str,
+        vol.Optional(CONF_STT, description=_sv(d, CONF_STT)): EntitySelector(EntitySelectorConfig(domain="stt")),
+        vol.Optional(CONF_STT_FALLBACK, description=_sv(d, CONF_STT_FALLBACK)):
+            EntitySelector(EntitySelectorConfig(domain="stt")),
+        vol.Optional(CONF_TTS, description=_sv(d, CONF_TTS)): EntitySelector(EntitySelectorConfig(domain="tts")),
+        vol.Optional(CONF_TTS_FALLBACK, description=_sv(d, CONF_TTS_FALLBACK)):
+            EntitySelector(EntitySelectorConfig(domain="tts")),
+        vol.Optional(CONF_AGENT_ADULT, description=_sv(d, CONF_AGENT_ADULT)): agent,
+        vol.Optional(CONF_AGENT_CHILD, description=_sv(d, CONF_AGENT_CHILD)): agent,
+        vol.Optional(CONF_AGENT_FALLBACK, description=_sv(d, CONF_AGENT_FALLBACK)): agent,
+        vol.Optional(CONF_AI_TASK, description=_sv(d, CONF_AI_TASK)): EntitySelector(EntitySelectorConfig(domain="ai_task")),
+        vol.Optional(CONF_PERSONS, description=_sv(d, CONF_PERSONS)): EntitySelector(EntitySelectorConfig(domain="sensor")),
+        vol.Optional(CONF_CONTEXT, description=_sv(d, CONF_CONTEXT)): EntitySelector(EntitySelectorConfig(domain="sensor")),
+        vol.Optional(CONF_CHILD_FROM, default=d.get(CONF_CHILD_FROM, "06:30")): str,
+        vol.Optional(CONF_CHILD_TO, default=d.get(CONF_CHILD_TO, "21:00")): str,
+        vol.Optional(CONF_SLEEP_SOUND, description=_sv(d, CONF_SLEEP_SOUND)): str,
+        vol.Optional(CONF_SLEEP_SOUND_MIN, default=d.get(CONF_SLEEP_SOUND_MIN, 20)): num(5, 120, "min"),
+        vol.Optional(CONF_TALK_BUTTON, default=d.get(CONF_TALK_BUTTON, True)): BooleanSelector(),
+        vol.Optional(CONF_PROXIMITY_TALK, default=d.get(CONF_PROXIMITY_TALK, True)): BooleanSelector(),
+        vol.Optional(CONF_WAKE_WORD, default=d.get(CONF_WAKE_WORD, False)): BooleanSelector(),
+        vol.Optional(CONF_WAKE_WORD_TEXT, default=d.get(CONF_WAKE_WORD_TEXT, "aurora")): str,
+        vol.Optional(CONF_WAKE_PRESENCE, default=d.get(CONF_WAKE_PRESENCE, True)): BooleanSelector(),
+        vol.Optional(CONF_WAKE_QUIET_START, default=d.get(CONF_WAKE_QUIET_START, "22:00")): str,
+        vol.Optional(CONF_WAKE_QUIET_END, default=d.get(CONF_WAKE_QUIET_END, "06:30")): str,
+        vol.Optional(CONF_LISTEN_WAIT, default=d.get(CONF_LISTEN_WAIT, 8)): num(3, 30, "s"),
+        vol.Optional(CONF_SILENCE_MS, default=d.get(CONF_SILENCE_MS, 1200)): num(500, 4000, "ms"),
+        vol.Optional(CONF_AUTO_UPDATE, default=d.get(CONF_AUTO_UPDATE, False)): BooleanSelector(),
+    })
 
 
 def settings_schema(d: dict) -> vol.Schema:
@@ -254,6 +302,22 @@ class PanelOptionsFlow(OptionsFlow):
                     except Exception:  # noqa: BLE001
                         errors["base"] = "cannot_connect"
                 if not errors:
-                    return self.async_create_entry(title="", data=data)
+                    self._data = data
+                    return await self.async_step_voice()
         defaults = dict(user_input) if user_input else dict(self._entry.options)
         return self.async_show_form(step_id="init", data_schema=settings_schema(defaults), errors=errors)
+
+    async def async_step_voice(self, user_input=None) -> ConfigFlowResult:
+        """Krok 2: Aurora – rozmowa głosowa."""
+        if user_input is not None:
+            data = {**getattr(self, "_data", {}), **user_input}
+            for k in (CONF_LISTEN_WAIT, CONF_SILENCE_MS, CONF_SLEEP_SOUND_MIN):
+                if k in data:
+                    data[k] = int(data[k])
+            # puste wybory usuwamy, żeby nie zostały stare wartości
+            for k in (CONF_STT, CONF_STT_FALLBACK, CONF_TTS, CONF_TTS_FALLBACK, CONF_AGENT_ADULT, CONF_AGENT_CHILD,
+                      CONF_AGENT_FALLBACK, CONF_AI_TASK, CONF_PERSONS, CONF_CONTEXT, CONF_SLEEP_SOUND):
+                if k not in user_input:
+                    data.pop(k, None)
+            return self.async_create_entry(title="", data=data)
+        return self.async_show_form(step_id="voice", data_schema=voice_schema(dict(self._entry.options)))

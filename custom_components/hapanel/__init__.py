@@ -9,9 +9,16 @@ from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
+import voluptuous as vol
+from homeassistant.core import ServiceCall, SupportsResponse
+import homeassistant.helpers.config_validation as cv
+
 from .api import PanelApi
+from .aurora import Aurora
 from .const import CONF_TOKEN, CONF_WEBHOOK_ID, DOMAIN
 from .coordinator import PanelCoordinator
+
+AURORA_KEY = f"{DOMAIN}_aurora"
 
 _LOGGER = logging.getLogger(__name__)
 PLATFORMS = ["sensor", "binary_sensor", "switch", "number", "button", "notify", "text", "media_player",
@@ -34,6 +41,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinator.webhook_id = wid
 
     async def _handle_webhook(hass_: HomeAssistant, webhook_id: str, request: web.Request) -> web.Response:
+        if request.query.get("voice") == "1":       # Aurora: nagranie z tabletu (WAV)
+            body = await request.read()
+            q = request.query
+            try:
+                turn = int(q.get("turn", "0"))
+            except ValueError:
+                turn = 0
+            result = await hass.data[AURORA_KEY].process(
+                coordinator, hass.config_entries.async_get_entry(entry.entry_id) or entry, body,
+                q.get("session", ""), q.get("person", ""), q.get("source", ""), turn)
+            return web.json_response(result)
         try:
             data = await request.json()
         except Exception:  # noqa: BLE001
@@ -41,6 +59,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if isinstance(data, dict):
             coordinator.handle_event(data)
         return web.Response(status=200)
+
+    if AURORA_KEY not in hass.data:
+        aurora = Aurora(hass)
+        await aurora.async_load()
+        hass.data[AURORA_KEY] = aurora
+        _register_services(hass)
 
     webhook.async_register(hass, DOMAIN, f"HA Panel {entry.title}", wid, _handle_webhook,
                            allowed_methods=["POST"])
@@ -69,4 +93,30 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         webhook.async_unregister(hass, wid)
     if ok:
         hass.data[DOMAIN].pop(entry.entry_id)
+        if not hass.data[DOMAIN] and AURORA_KEY in hass.data:
+            hass.data.pop(AURORA_KEY).unload()
+            for svc in ("aurora_forget", "aurora_stars", "aurora_today"):
+                hass.services.async_remove(DOMAIN, svc)
     return ok
+
+
+def _register_services(hass: HomeAssistant) -> None:
+    """Usługi Aurory wspólne dla wszystkich tabletów."""
+
+    async def _forget(call: ServiceCall) -> None:
+        hass.data[AURORA_KEY].forget(call.data["person"], call.data.get("fact"))
+
+    async def _stars(call: ServiceCall) -> None:
+        hass.data[AURORA_KEY].add_stars(call.data["person"], call.data.get("add", 1))
+
+    async def _today(call: ServiceCall) -> dict:
+        a = hass.data[AURORA_KEY]
+        return {"rozmowy": a.today_log(), "gwiazdki": dict(a.data["stars"]),
+                "pamiec": {k: list(v) for k, v in a.data["memory"].items()}}
+
+    hass.services.async_register(DOMAIN, "aurora_forget", _forget, schema=vol.Schema(
+        {vol.Required("person"): cv.string, vol.Optional("fact"): cv.string}))
+    hass.services.async_register(DOMAIN, "aurora_stars", _stars, schema=vol.Schema(
+        {vol.Required("person"): cv.string, vol.Optional("add", default=1): vol.Coerce(int)}))
+    hass.services.async_register(DOMAIN, "aurora_today", _today, schema=vol.Schema({}),
+                                 supports_response=SupportsResponse.ONLY)

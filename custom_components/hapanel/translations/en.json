@@ -103,6 +103,38 @@
           "temp_in": "Night clock: indoor temperature",
           "clock_info": "Night clock: extra info (text entity)"
         }
+      },
+      "voice": {
+        "title": "Aurora – voice conversation",
+        "description": "Talk to the tablet: after announcements, with the ✦ button, a wake word or by waving your hand. Requires the HA Panel app 2.7. Household members and home information come from sensors (attributes “osoby” and “tekst”) – see examples/aurora.example.yaml.",
+        "data": {
+          "voice_enabled": "Voice conversation enabled",
+          "assistant_name": "Assistant name",
+          "stt_entity": "Speech-to-text (main)",
+          "stt_fallback": "Speech-to-text (fallback, local)",
+          "tts_entity": "Voice (main)",
+          "tts_fallback": "Voice (fallback, local)",
+          "agent_adult": "Conversation agent for adults (may control the home)",
+          "agent_child": "Conversation agent for children (no control)",
+          "agent_fallback": "Fallback agent (offline)",
+          "ai_task_entity": "AI tasks (memory and conversation summaries)",
+          "persons_entity": "Sensor with household members (attribute “osoby”)",
+          "context_entity": "Sensor with home information (attribute “tekst”)",
+          "child_from": "Children may talk from (HH:MM)",
+          "child_to": "Children may talk until (HH:MM)",
+          "sleep_sound_url": "Sleep sound URL (mp3)",
+          "sleep_sound_minutes": "Sleep sound duration",
+          "talk_button": "✦ “Talk to Aurora” button on the tablet",
+          "proximity_talk": "Two hand waves = conversation",
+          "wake_word": "Wake word (recognised on the tablet)",
+          "wake_word_text": "Wake word",
+          "wake_presence_only": "Wake word only when someone is near the tablet",
+          "wake_quiet_start": "Wake word quiet hours – from (HH:MM)",
+          "wake_quiet_end": "Wake word quiet hours – until (HH:MM)",
+          "listen_wait": "After an announcement wait for an answer",
+          "silence_ms": "End of speech after silence",
+          "auto_update": "Automatic app updates (one confirmation on the tablet)"
+        }
       }
     },
     "error": {
@@ -168,6 +200,82 @@
           "description": "Wakes the screen first"
         }
       }
+    },
+    "converse": {
+      "name": "Aurora: say and listen",
+      "description": "Aurora speaks an announcement in a natural voice, then listens and keeps the conversation going.",
+      "fields": {
+        "message": {
+          "name": "Message",
+          "description": "Text to say"
+        },
+        "person": {
+          "name": "Person",
+          "description": "Household member id, e.g. wiki"
+        },
+        "listen": {
+          "name": "Listen for an answer",
+          "description": "Open the microphone after the message"
+        },
+        "wait": {
+          "name": "Wait",
+          "description": "Seconds to wait for speech"
+        },
+        "volume": {
+          "name": "Volume",
+          "description": "0–100"
+        }
+      }
+    },
+    "listen": {
+      "name": "Aurora: listen",
+      "description": "Starts listening and a conversation without a message.",
+      "fields": {
+        "person": {
+          "name": "Person",
+          "description": "Person id (optional)"
+        },
+        "wait": {
+          "name": "Wait",
+          "description": "Seconds to wait for speech"
+        }
+      }
+    },
+    "stop_talk": {
+      "name": "Aurora: stop conversation",
+      "description": "Stops the conversation on the tablet."
+    },
+    "aurora_forget": {
+      "name": "Aurora: forget",
+      "description": "Removes everything Aurora remembers about a person, or facts containing the given text.",
+      "fields": {
+        "person": {
+          "name": "Person",
+          "description": "Id, e.g. wiki"
+        },
+        "fact": {
+          "name": "Fact",
+          "description": "Text fragment (empty = everything)"
+        }
+      }
+    },
+    "aurora_stars": {
+      "name": "Aurora: stars",
+      "description": "Adds or removes stars.",
+      "fields": {
+        "person": {
+          "name": "Person",
+          "description": "Id, e.g. wiki"
+        },
+        "add": {
+          "name": "Count",
+          "description": "Number (negative removes)"
+        }
+      }
+    },
+    "aurora_today": {
+      "name": "Aurora: today's conversations",
+      "description": "Returns today's conversation log, stars and memory (for summaries)."
     }
   }
 }

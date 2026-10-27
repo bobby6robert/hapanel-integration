@@ -9,7 +9,7 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.event import async_track_time_interval
 
-from .const import DEFAULT_APP_REPO, DOMAIN
+from .const import CONF_AUTO_UPDATE, DEFAULT_APP_REPO, DOMAIN
 from .entity import PanelEntity
 
 
@@ -29,6 +29,8 @@ class PanelUpdate(PanelEntity, UpdateEntity):
         self._url: str | None = None
         self._apk: str | None = None
         self._summary: str | None = None
+        self._auto_tried: str | None = None
+        self._entry = entry
 
     async def async_added_to_hass(self) -> None:
         await super().async_added_to_hass()
@@ -61,6 +63,15 @@ class PanelUpdate(PanelEntity, UpdateEntity):
         self._apk = next((a.get("browser_download_url") for a in data.get("assets", [])
                           if str(a.get("name", "")).endswith(".apk")), None)
         self.async_write_ha_state()
+        # automatyczna aktualizacja: raz na każdą nową wersję (tablet pokaże jedno systemowe potwierdzenie)
+        inst = self.installed_version
+        if (self._entry.options.get(CONF_AUTO_UPDATE) and self._apk and self._latest and inst
+                and self._latest != inst and self._auto_tried != self._latest):
+            self._auto_tried = self._latest
+            try:
+                await self._cmd("/update", url=self._apk)
+            except Exception:  # noqa: BLE001
+                pass
 
     @property
     def installed_version(self) -> str | None:

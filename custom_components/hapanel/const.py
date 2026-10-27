@@ -31,3 +31,38 @@ CONF_TEMP_IN = "temp_in"
 CONF_CLOCK_INFO = "clock_info"
 CONF_WEBHOOK_ID = "webhook_id"          # w danych wpisu (nie w opcjach)
 DEFAULT_APP_REPO = "bobby6robert/hapanel-app"
+
+# --- Aurora: rozmowa głosowa (1.6, wymaga aplikacji 2.7) ---
+# ustawienia wypychane na tablet
+CONF_VOICE = "voice_enabled"
+CONF_TALK_BUTTON = "talk_button"
+CONF_WAKE_WORD = "wake_word"
+CONF_WAKE_WORD_TEXT = "wake_word_text"
+CONF_WAKE_QUIET_START = "wake_quiet_start"
+CONF_WAKE_QUIET_END = "wake_quiet_end"
+CONF_WAKE_PRESENCE = "wake_presence_only"
+CONF_PROXIMITY_TALK = "proximity_talk"
+CONF_LISTEN_WAIT = "listen_wait"
+CONF_SILENCE_MS = "silence_ms"
+# ustawienia tylko po stronie HA
+CONF_STT = "stt_entity"
+CONF_STT_FALLBACK = "stt_fallback"
+CONF_TTS = "tts_entity"
+CONF_TTS_FALLBACK = "tts_fallback"
+CONF_AGENT_ADULT = "agent_adult"
+CONF_AGENT_CHILD = "agent_child"
+CONF_AGENT_FALLBACK = "agent_fallback"
+CONF_AI_TASK = "ai_task_entity"
+CONF_PERSONS = "persons_entity"
+CONF_CONTEXT = "context_entity"
+CONF_CHILD_FROM = "child_from"
+CONF_CHILD_TO = "child_to"
+CONF_SLEEP_SOUND = "sleep_sound_url"
+CONF_SLEEP_SOUND_MIN = "sleep_sound_minutes"
+CONF_ASSISTANT_NAME = "assistant_name"
+CONF_AUTO_UPDATE = "auto_update"
+
+DEFAULT_ASSISTANT_NAME = "Aurora"
+STORAGE_KEY = "hapanel_aurora"
+STORAGE_VERSION = 1
+SIGNAL_AURORA = "hapanel_aurora_updated"

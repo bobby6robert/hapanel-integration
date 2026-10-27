@@ -66,3 +66,81 @@ import_settings:
       example: '{"dashboard": "https://ha.example.com", "zoom": "110"}'
       selector:
         object:
+converse:
+  target:
+    entity:
+      integration: hapanel
+      domain: media_player
+  fields:
+    message:
+      required: true
+      example: "Wiki, pora spać. Jutro na pierwszej lekcji angielski."
+      selector:
+        text:
+          multiline: true
+    person:
+      example: "wiki"
+      selector:
+        text:
+    listen:
+      default: true
+      selector:
+        boolean:
+    wait:
+      selector:
+        number:
+          min: 3
+          max: 30
+          unit_of_measurement: s
+    volume:
+      selector:
+        number:
+          min: 0
+          max: 100
+          unit_of_measurement: "%"
+listen:
+  target:
+    entity:
+      integration: hapanel
+      domain: media_player
+  fields:
+    person:
+      example: "wiki"
+      selector:
+        text:
+    wait:
+      selector:
+        number:
+          min: 3
+          max: 30
+          unit_of_measurement: s
+stop_talk:
+  target:
+    entity:
+      integration: hapanel
+      domain: media_player
+aurora_forget:
+  fields:
+    person:
+      required: true
+      example: "wiki"
+      selector:
+        text:
+    fact:
+      example: "kotek"
+      selector:
+        text:
+aurora_stars:
+  fields:
+    person:
+      required: true
+      example: "wiki"
+      selector:
+        text:
+    add:
+      default: 1
+      selector:
+        number:
+          min: -100
+          max: 100
+aurora_today:
