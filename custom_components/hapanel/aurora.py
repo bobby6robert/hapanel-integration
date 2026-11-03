@@ -70,6 +70,15 @@ def _pcm_from_wav(data: bytes) -> bytes:
     return data[44:]
 
 
+NO_CONNECTION = "Przepraszam, nie mam teraz połączenia. Spróbujmy za chwilę."
+
+
+def _overloaded(err: Exception) -> bool:
+    """Chwilowe przeciążenie usługi (np. Google 503 / UNAVAILABLE / high demand)."""
+    t = str(err).lower()
+    return any(k in t for k in ("503", "unavailable", "overloaded", "high demand"))
+
+
 class Aurora:
     """Wspólny „mózg” Aurory dla wszystkich tabletów."""
 
@@ -217,7 +226,16 @@ class Aurora:
                         yield pcm[i:i + 4096]
 
                 fn = getattr(prov, "internal_async_process_audio_stream", None) or prov.async_process_audio_stream
-                res = await asyncio.wait_for(fn(meta, stream()), timeout=25)
+                res = None
+                for attempt in range(2):
+                    try:
+                        res = await asyncio.wait_for(fn(meta, stream()), timeout=25)
+                        break
+                    except Exception as err:  # noqa: BLE001
+                        if attempt == 0 and _overloaded(err):
+                            await asyncio.sleep(3)
+                            continue
+                        raise
                 text = (getattr(res, "text", None) or "").strip()
                 if text:
                     return text
@@ -261,11 +279,20 @@ class Aurora:
             try:
                 kwargs = dict(text=text, conversation_id=sess.get("conv_id"), context=Context(),
                               language="pl", agent_id=agent)
-                try:
-                    res = await asyncio.wait_for(
-                        conversation.async_converse(self.hass, extra_system_prompt=prompt, **kwargs), timeout=40)
-                except TypeError:   # starszy HA bez extra_system_prompt
-                    res = await asyncio.wait_for(conversation.async_converse(self.hass, **kwargs), timeout=40)
+                res = None
+                for attempt in range(2):
+                    try:
+                        try:
+                            res = await asyncio.wait_for(
+                                conversation.async_converse(self.hass, extra_system_prompt=prompt, **kwargs), timeout=40)
+                        except TypeError:   # starszy HA bez extra_system_prompt
+                            res = await asyncio.wait_for(conversation.async_converse(self.hass, **kwargs), timeout=40)
+                        break
+                    except Exception as err:  # noqa: BLE001
+                        if attempt == 0 and _overloaded(err):   # chwilowe przeciążenie serwera – jedna ponowna próba
+                            await asyncio.sleep(3)
+                            continue
+                        raise
                 speech = (res.response.speech or {}).get("plain", {}).get("speech", "").strip()
                 if not speech:
                     continue
@@ -274,7 +301,7 @@ class Aurora:
                 return speech, bool(getattr(res, "continue_conversation", False))
             except Exception as err:  # noqa: BLE001
                 _LOGGER.warning("Aurora: agent %s nie odpowiedział: %s", agent, err)
-        return "Przepraszam, nie mam teraz połączenia. Spróbujmy za chwilę.", False
+        return NO_CONNECTION, False
 
     # ------------------------------------------------------------------ jedna tura rozmowy
     async def process(self, coordinator, entry, wav: bytes, session: str, person: str, source: str, turn: int) -> dict:
@@ -317,6 +344,10 @@ class Aurora:
             else:
                 prompt = self.build_prompt(options, p, entry.entry_id, sess["source"])
                 reply, _ = await self.converse(options, heard, sess, child, prompt)
+                if reply == NO_CONNECTION and sess.get("source") in ("wake", "proximity"):
+                    # wybudzenie słowem/gestem (często fałszywe) – przy awarii po cichu kończymy rozmowę
+                    _LOGGER.info("Aurora: brak odpowiedzi agenta po wybudzeniu (%s) – kończę bez komunikatu", sess.get("source"))
+                    return {"reply": "", "audio": "", "continue": False, "end": True, "heard": heard}
                 if farewell:
                     end = True
                     dim = "dobranoc" in heard.lower() or _now().hour >= 20
