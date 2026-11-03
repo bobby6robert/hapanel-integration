@@ -316,8 +316,12 @@ class Aurora:
             sess["person"] = person
 
         heard = await self.stt(options, _pcm_from_wav(wav))
+        # Aurora 2.11: szum/odgłosy przy podchodzeniu nie są rozmową – zamknij po cichu
+        _low = (heard or "").strip().lower()
+        if _low and (len("".join(re.findall(r"\w+", _low))) < 4 or re.fullmatch(r"(dzi[eę]k\w*|napisy.*|amara.*|ok+|hm+|y+|e+|a+|no|tak)[\W]*", _low)):
+            heard = ""
         if not heard:
-            return {"reply": "", "audio": "", "continue": turn < 1, "end": turn >= 1, "heard": ""}
+            return {"reply": "", "audio": "", "continue": False, "end": True, "heard": ""}
         sess["turns"].append(("user", heard))
 
         p = self.person(options, sess["person"]) if sess["person"] else None
@@ -330,9 +334,8 @@ class Aurora:
         dim = False
         cont = True
 
-        if p is None and not sess["asked_who"] and self.persons(options) and source != "announce":
-            sess["asked_who"] = True
-            reply = "Cześć! Kto ze mną rozmawia?"
+        if False:  # Aurora 2.11: nie pytamy „kto mówi” – nieznany = bezpieczny tryb dziecięcy
+            pass
         else:
             child = self.is_child(p)
             farewell = bool(FAREWELL.search(heard))
