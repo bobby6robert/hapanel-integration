@@ -204,10 +204,10 @@ class Aurora:
         return "\n".join(lines)
 
     # ------------------------------------------------------------------ silniki
-    async def stt(self, options: dict, pcm: bytes) -> str:
+    async def stt(self, options: dict, pcm: bytes, engines: tuple | None = None) -> str:
         from homeassistant.components import stt
 
-        for eid in (options.get(CONF_STT), options.get(CONF_STT_FALLBACK)):
+        for eid in (engines or (options.get(CONF_STT), options.get(CONF_STT_FALLBACK))):
             if not eid:
                 continue
             try:
@@ -315,7 +315,15 @@ class Aurora:
         if person and not sess["person"]:
             sess["person"] = person
 
-        heard = await self.stt(options, _pcm_from_wav(wav))
+        if source == "command":
+            # słowo „Dom”: najpierw szybkie, lokalne rozpoznawanie poleceń HA (Speech-to-Phrase), potem zapasowe
+            engines = tuple(e for e in ("stt.speech_to_phrase", "stt.faster_whisper",
+                                        options.get(CONF_STT), options.get(CONF_STT_FALLBACK))
+                            if e and self.hass.states.get(e) is not None)
+            heard = await self.stt(options, _pcm_from_wav(wav), engines)
+            _LOGGER.info("Aurora/Dom: usłyszałem „%s”", heard)
+        else:
+            heard = await self.stt(options, _pcm_from_wav(wav))
         # Aurora 2.11: szum/odgłosy przy podchodzeniu nie są rozmową – zamknij po cichu
         _low = (heard or "").strip().lower()
         if _low and (len("".join(re.findall(r"\w+", _low))) < 4 or re.fullmatch(r"(dzi[eę]k\w*|napisy.*|amara.*|ok+|hm+|y+|e+|a+|no|tak)[\W]*", _low)):
@@ -386,6 +394,7 @@ class Aurora:
             resp = res.response
             if getattr(resp, "response_type", None) != intent.IntentResponseType.ERROR:
                 reply = (resp.speech or {}).get("plain", {}).get("speech", "") or "Gotowe."
+            _LOGGER.info("Aurora/Dom: „%s” → %s", heard, reply or "nie rozpoznano polecenia")
         except Exception as err:  # noqa: BLE001
             _LOGGER.info("Aurora/Dom: polecenie „%s” nie wykonane: %s", heard, err)
         self.sessions.pop(session, None)
