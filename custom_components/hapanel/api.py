@@ -9,7 +9,7 @@ from .const import (
     CONF_INJECT_CSS, CONF_INJECT_JS, CONF_MOTION_THRESHOLD, CONF_NIGHT_BRIGHTNESS, CONF_NIGHT_ENABLED, CONF_NIGHT_END,
     CONF_NIGHT_START, CONF_NIGHT_WAKE, CONF_SLEEP_AFTER, CONF_WAKE_ON_MOTION, CONF_WAKE_ON_PROX, CONF_ZOOM,
     CONF_LISTEN_WAIT, CONF_PROXIMITY_TALK, CONF_SILENCE_MS, CONF_TALK_BUTTON, CONF_VOICE, CONF_WAKE_PRESENCE,
-    CONF_WAKE_QUIET_END, CONF_WAKE_QUIET_START, CONF_WAKE_WORD, CONF_WAKE_WORD_TEXT,
+    CONF_WAKE_QUIET_END, CONF_WAKE_QUIET_START, CONF_WAKE_WORD, CONF_WAKE_WORD_TEXT, CONF_HOME_WORD, CONF_HOME_WORD_TEXT,
 )
 
 
@@ -71,12 +71,13 @@ def build_config_params(options: dict, new_token: str = "", code: str = "", pin:
             p[name] = str(options[key])
     for key, name in ((CONF_NIGHT_START, "nightStart"), (CONF_NIGHT_END, "nightEnd"),
                       (CONF_WAKE_QUIET_START, "wakeQuietStart"), (CONF_WAKE_QUIET_END, "wakeQuietEnd"),
-                      (CONF_WAKE_WORD_TEXT, "wakeWordText")):
+                      (CONF_WAKE_WORD_TEXT, "wakeWordText"), (CONF_HOME_WORD_TEXT, "homeWordText")):
         if options.get(key):
             p[name] = str(options[key])
     # Aurora (aplikacja 2.7+; starsze wersje ignorują nieznane klucze)
     for key, name in ((CONF_VOICE, "voice"), (CONF_TALK_BUTTON, "talkButton"), (CONF_WAKE_WORD, "wakeWord"),
-                      (CONF_WAKE_PRESENCE, "wakePresenceOnly"), (CONF_PROXIMITY_TALK, "proximityTalk")):
+                      (CONF_WAKE_PRESENCE, "wakePresenceOnly"), (CONF_PROXIMITY_TALK, "proximityTalk"),
+                      (CONF_HOME_WORD, "homeWord")):
         if key in options:
             p[name] = "1" if options[key] else "0"
     for key, name in ((CONF_LISTEN_WAIT, "listenWait"), (CONF_SILENCE_MS, "silenceMs")):
