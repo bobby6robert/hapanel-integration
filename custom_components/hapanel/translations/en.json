@@ -129,6 +129,8 @@
           "wake_word": "Wake word (recognised on the tablet)",
           "wake_word_text": "Wake word",
           "wake_presence_only": "Wake word only when someone is near the tablet",
+          "home_word": "“Home” word – quick home control (lights etc.)",
+          "home_word_text": "Home control word",
           "wake_quiet_start": "Wake word quiet hours – from (HH:MM)",
           "wake_quiet_end": "Wake word quiet hours – until (HH:MM)",
           "listen_wait": "After an announcement wait for an answer",

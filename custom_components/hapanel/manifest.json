@@ -1,7 +1,7 @@
 {
   "domain": "hapanel",
   "name": "HA Panel",
-  "version": "1.6.1",
+  "version": "1.7.0",
   "config_flow": true,
   "iot_class": "local_polling",
   "documentation": "https://github.com/bobby6robert/hapanel-integration",

@@ -324,6 +324,9 @@ class Aurora:
             return {"reply": "", "audio": "", "continue": False, "end": True, "heard": ""}
         sess["turns"].append(("user", heard))
 
+        if sess["source"] == "command":
+            return await self._home_command(options, heard, session)
+
         p = self.person(options, sess["person"]) if sess["person"] else None
         if p is None:
             p = self.match_person(options, heard)
@@ -339,6 +342,9 @@ class Aurora:
         else:
             child = self.is_child(p)
             farewell = bool(FAREWELL.search(heard))
+            if child and not self.child_hours_ok(options) and p is None and sess["source"] in ("wake", "proximity"):
+                # nie wiadomo, kto mówi (często fałszywe wybudzenie) – nie upominamy, kończymy po cichu
+                return {"reply": "", "audio": "", "continue": False, "end": True, "heard": heard}
             if child and not self.child_hours_ok(options):
                 reply = "Już późno i pora spać. Porozmawiamy jutro. Dobranoc i kolorowych snów!"
                 end, dim = True, True
@@ -366,6 +372,25 @@ class Aurora:
             cont = False
         return {"heard": heard, "reply": reply, "audio": audio, "continue": cont, "end": end, "dim": dim,
                 "person": sess["person"]}
+
+    async def _home_command(self, options: dict, heard: str, session: str) -> dict:
+        """Słowo „Dom”: jedno polecenie do lokalnego asystenta HA (bez AI). Nierozpoznane = cisza."""
+        from homeassistant.components import conversation
+        from homeassistant.helpers import intent
+        agent = options.get(CONF_AGENT_FALLBACK) or "conversation.home_assistant"
+        reply = ""
+        try:
+            res = await asyncio.wait_for(conversation.async_converse(
+                self.hass, text=heard, conversation_id=None, context=Context(),
+                language="pl", agent_id=agent), timeout=15)
+            resp = res.response
+            if getattr(resp, "response_type", None) != intent.IntentResponseType.ERROR:
+                reply = (resp.speech or {}).get("plain", {}).get("speech", "") or "Gotowe."
+        except Exception as err:  # noqa: BLE001
+            _LOGGER.info("Aurora/Dom: polecenie „%s” nie wykonane: %s", heard, err)
+        self.sessions.pop(session, None)
+        audio = await self.tts_url(options, reply) if reply else ""
+        return {"heard": heard, "reply": reply, "audio": audio, "continue": False, "end": True}
 
     async def _command(self, coordinator, options: dict, p: dict | None, text: str, child: bool):
         """Proste polecenia obsługiwane bez AI. Zwraca (odpowiedź, koniec, przyciemnij) albo None."""

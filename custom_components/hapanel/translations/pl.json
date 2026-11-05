@@ -129,6 +129,8 @@
           "wake_word": "Słowo wybudzające (rozpoznawane na tablecie)",
           "wake_word_text": "Słowo wybudzające",
           "wake_presence_only": "Słowo tylko, gdy ktoś jest przy tablecie",
+          "home_word": "Słowo „Dom” – szybkie sterowanie domem (światła itp.)",
+          "home_word_text": "Słowo do sterowania domem",
           "wake_quiet_start": "Cisza nocna słowa – od (GG:MM)",
           "wake_quiet_end": "Cisza nocna słowa – do (GG:MM)",
           "listen_wait": "Po komunikacie czekaj na odpowiedź",

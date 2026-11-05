@@ -28,7 +28,7 @@ from .const import (
     CONF_CHILD_FROM, CONF_CHILD_TO, CONF_CONTEXT, CONF_LISTEN_WAIT, CONF_PERSONS, CONF_PROXIMITY_TALK,
     CONF_SILENCE_MS, CONF_SLEEP_SOUND, CONF_SLEEP_SOUND_MIN, CONF_STT, CONF_STT_FALLBACK, CONF_TALK_BUTTON,
     CONF_TTS, CONF_TTS_FALLBACK, CONF_VOICE, CONF_WAKE_PRESENCE, CONF_WAKE_QUIET_END, CONF_WAKE_QUIET_START,
-    CONF_WAKE_WORD, CONF_WAKE_WORD_TEXT, DEFAULT_ASSISTANT_NAME,
+    CONF_WAKE_WORD, CONF_WAKE_WORD_TEXT, DEFAULT_ASSISTANT_NAME, CONF_HOME_WORD, CONF_HOME_WORD_TEXT,
 )
 
 
@@ -65,6 +65,8 @@ def voice_schema(d: dict) -> vol.Schema:
         vol.Optional(CONF_WAKE_WORD, default=d.get(CONF_WAKE_WORD, False)): BooleanSelector(),
         vol.Optional(CONF_WAKE_WORD_TEXT, default=d.get(CONF_WAKE_WORD_TEXT, "aurora")): str,
         vol.Optional(CONF_WAKE_PRESENCE, default=d.get(CONF_WAKE_PRESENCE, True)): BooleanSelector(),
+        vol.Optional(CONF_HOME_WORD, default=d.get(CONF_HOME_WORD, True)): BooleanSelector(),
+        vol.Optional(CONF_HOME_WORD_TEXT, default=d.get(CONF_HOME_WORD_TEXT, "dom")): str,
         vol.Optional(CONF_WAKE_QUIET_START, default=d.get(CONF_WAKE_QUIET_START, "22:00")): str,
         vol.Optional(CONF_WAKE_QUIET_END, default=d.get(CONF_WAKE_QUIET_END, "06:30")): str,
         vol.Optional(CONF_LISTEN_WAIT, default=d.get(CONF_LISTEN_WAIT, 8)): num(3, 30, "s"),
