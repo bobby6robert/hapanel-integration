@@ -33,6 +33,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     async_add_entities([
         PanelSensor(c, entry, "battery", "Bateria", "battery", S.BATTERY, PERCENTAGE, convert=_neg_none),
         PanelSensor(c, entry, "illuminance", "Światło", "lux", S.ILLUMINANCE, LIGHT_LUX, convert=_neg_none),
+        PanelSensor(c, entry, "drain", "Zużycie baterii", "drain", None, "%/h", convert=_neg_none, diag=True),
         PanelSensor(c, entry, "battery_temp", "Temperatura baterii", "battery_temp", S.TEMPERATURE,
                     UnitOfTemperature.CELSIUS, convert=_temp, diag=True),
         PanelSensor(c, entry, "battery_health", "Kondycja baterii", "battery_health", diag=True, measurement=False),

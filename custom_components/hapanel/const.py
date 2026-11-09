@@ -6,6 +6,7 @@ DEFAULT_PORT = 8765
 CONF_DASHBOARD = "dashboard_url"
 CONF_HOME_AFTER = "home_after"
 CONF_SLEEP_AFTER = "sleep_after"
+CONF_SAVER_MODE = "saver_mode"
 CONF_MOTION = "motion"
 CONF_MOTION_THRESHOLD = "motion_threshold"
 CONF_WAKE_ON_MOTION = "wake_on_motion"

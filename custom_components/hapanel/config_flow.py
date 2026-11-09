@@ -11,6 +11,7 @@ from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.network import NoURLAvailableError, get_url
 from homeassistant.helpers.selector import (
+    SelectSelector, SelectSelectorConfig, SelectSelectorMode,
     BooleanSelector, ConversationAgentSelector, ConversationAgentSelectorConfig, EntitySelector,
     EntitySelectorConfig, NumberSelector, NumberSelectorConfig, NumberSelectorMode, TextSelector,
     TextSelectorConfig, TextSelectorType,
@@ -21,7 +22,7 @@ from .api import PanelApi, build_config_params
 from .const import (
     CONF_AUTO_BRIGHT, CONF_CODE, CONF_DASHBOARD, CONF_FALLBACK, CONF_HOME_AFTER, CONF_LOCK_TASK,
     CONF_INJECT_CSS, CONF_INJECT_JS, CONF_MOTION, CONF_MOTION_THRESHOLD, CONF_NIGHT_BRIGHTNESS, CONF_NIGHT_ENABLED, CONF_NIGHT_END,
-    CONF_NIGHT_START, CONF_NIGHT_WAKE, CONF_PIN, CONF_SLEEP_AFTER, CONF_TOKEN, CONF_WAKE_ON_MOTION,
+    CONF_NIGHT_START, CONF_NIGHT_WAKE, CONF_PIN, CONF_SLEEP_AFTER, CONF_SAVER_MODE, CONF_TOKEN, CONF_WAKE_ON_MOTION,
     CONF_ZOOM, CONF_WAKE_ON_PROX, CONF_TEMP_OUT, CONF_TEMP_IN, CONF_CLOCK_INFO,
     DEFAULT_PORT, DOMAIN,
     CONF_AGENT_ADULT, CONF_AGENT_CHILD, CONF_AGENT_FALLBACK, CONF_AI_TASK, CONF_ASSISTANT_NAME, CONF_AUTO_UPDATE,
@@ -83,6 +84,8 @@ def settings_schema(d: dict) -> vol.Schema:
             TextSelector(TextSelectorConfig(multiline=True)),
         vol.Optional(CONF_HOME_AFTER, default=d.get(CONF_HOME_AFTER, 0)): int,
         vol.Optional(CONF_SLEEP_AFTER, default=d.get(CONF_SLEEP_AFTER, 0)): int,
+        vol.Optional(CONF_SAVER_MODE, default=d.get(CONF_SAVER_MODE, "auto")): SelectSelector(SelectSelectorConfig(
+            options=["auto", "always", "never"], translation_key="saver_mode", mode=SelectSelectorMode.DROPDOWN)),
         vol.Optional(CONF_MOTION, default=d.get(CONF_MOTION, False)): bool,
         vol.Optional(CONF_MOTION_THRESHOLD, default=d.get(CONF_MOTION_THRESHOLD, 5)): int,
         vol.Optional(CONF_WAKE_ON_MOTION, default=d.get(CONF_WAKE_ON_MOTION, True)): bool,
