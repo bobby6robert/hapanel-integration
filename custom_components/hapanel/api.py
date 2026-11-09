@@ -7,7 +7,7 @@ import aiohttp
 from .const import (
     CONF_AUTO_BRIGHT, CONF_DASHBOARD, CONF_FALLBACK, CONF_HOME_AFTER, CONF_LOCK_TASK, CONF_MOTION,
     CONF_INJECT_CSS, CONF_INJECT_JS, CONF_MOTION_THRESHOLD, CONF_NIGHT_BRIGHTNESS, CONF_NIGHT_ENABLED, CONF_NIGHT_END,
-    CONF_NIGHT_START, CONF_NIGHT_WAKE, CONF_SLEEP_AFTER, CONF_WAKE_ON_MOTION, CONF_WAKE_ON_PROX, CONF_ZOOM,
+    CONF_NIGHT_START, CONF_NIGHT_WAKE, CONF_SLEEP_AFTER, CONF_SAVER_MODE, CONF_WAKE_ON_MOTION, CONF_WAKE_ON_PROX, CONF_ZOOM,
     CONF_LISTEN_WAIT, CONF_PROXIMITY_TALK, CONF_SILENCE_MS, CONF_TALK_BUTTON, CONF_VOICE, CONF_WAKE_PRESENCE,
     CONF_WAKE_QUIET_END, CONF_WAKE_QUIET_START, CONF_WAKE_WORD, CONF_WAKE_WORD_TEXT, CONF_HOME_WORD, CONF_HOME_WORD_TEXT,
 )
@@ -60,6 +60,8 @@ def build_config_params(options: dict, new_token: str = "", code: str = "", pin:
                       (CONF_NIGHT_WAKE, "nightWake"), (CONF_ZOOM, "zoom")):
         if key in options:
             p[name] = str(int(options[key]))
+    if CONF_SAVER_MODE in options:
+        p["saverMode"] = str(options[CONF_SAVER_MODE])
     for key, name in ((CONF_MOTION, "motion"), (CONF_WAKE_ON_MOTION, "wakeOnMotion"),
                       (CONF_WAKE_ON_PROX, "wakeOnProximity"),
                       (CONF_AUTO_BRIGHT, "auto"), (CONF_LOCK_TASK, "lockTask"),

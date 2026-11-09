@@ -13,6 +13,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
         PanelBinary(c, entry, "charging", "Ładowanie", lambda d: d.get("charging"), BinarySensorDeviceClass.BATTERY_CHARGING),
         PanelBinary(c, entry, "motion", "Ruch", lambda d: d.get("motion"), BinarySensorDeviceClass.MOTION),
         PanelBinary(c, entry, "screen_on", "Ekran włączony", lambda d: not d.get("sleeping"), None),
+        PanelBinary(c, entry, "saver", "Tryb oszczędny", lambda d: d.get("saver"), None),
         PanelBinary(c, entry, "night", "Pora nocna", lambda d: d.get("night"), None),
         PanelBinary(c, entry, "night_clock", "Zegar nocny", lambda d: d.get("clock"), None),
         PanelBinary(c, entry, "fallback", "Adres awaryjny", lambda d: d.get("fallback"), BinarySensorDeviceClass.PROBLEM,
