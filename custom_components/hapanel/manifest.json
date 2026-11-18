@@ -1,26 +1,26 @@
 {
   "domain": "hapanel",
   "name": "HA Panel",
-  "version": "1.8.0",
-  "config_flow": true,
-  "iot_class": "local_polling",
-  "documentation": "https://github.com/bobby6robert/hapanel-integration",
-  "issue_tracker": "https://github.com/bobby6robert/hapanel-integration/issues",
-  "codeowners": [
-    "@bobby6robert"
-  ],
-  "requirements": [],
-  "dependencies": [
-    "media_source",
-    "webhook"
-  ],
-  "zeroconf": [
-    "_hapanel._tcp.local."
-  ],
   "after_dependencies": [
     "conversation",
     "stt",
     "tts",
     "ai_task"
+  ],
+  "codeowners": [
+    "@bobby6robert"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "media_source",
+    "webhook"
+  ],
+  "documentation": "https://github.com/bobby6robert/hapanel-integration",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/bobby6robert/hapanel-integration/issues",
+  "requirements": [],
+  "version": "1.8.0",
+  "zeroconf": [
+    "_hapanel._tcp.local."
   ]
 }

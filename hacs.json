@@ -1,1 +1,4 @@
-{ "name": "HA Panel", "homeassistant": "2024.8.0" }
+{
+  "name": "HA Panel",
+  "homeassistant": "2024.8.0"
+}
