@@ -51,7 +51,10 @@
           "wake_on_proximity": "Wake screen with proximity sensor",
           "temp_out": "Night clock: outdoor temperature",
           "temp_in": "Night clock: indoor temperature",
-          "clock_info": "Night clock: extra info (text entity)"
+          "clock_info": "Night clock: extra info (text entity)",
+          "weather": "Weather (clock and screensaver)",
+          "saver_folder": "Screensaver – photo folder (inside /media, e.g. photos)",
+          "saver_cameras": "Screensaver – cameras (up to 4)"
         }
       },
       "reauth_confirm": {
@@ -102,7 +105,10 @@
           "temp_out": "Night clock: outdoor temperature",
           "temp_in": "Night clock: indoor temperature",
           "clock_info": "Night clock: extra info (text entity)",
-          "saver_mode": "Battery saver"
+          "saver_mode": "Battery saver",
+          "weather": "Weather (clock and screensaver)",
+          "saver_folder": "Screensaver – photo folder (inside /media, e.g. photos)",
+          "saver_cameras": "Screensaver – cameras (up to 4)"
         }
       },
       "voice": {
@@ -144,7 +150,8 @@
           "duck_entity": "Duck this TV/speaker during announcements",
           "duck_level": "Duck level",
           "menu_any_corner": "Menu: 5 taps in any corner",
-          "menu_two_finger": "Menu: hold two fingers for 2 s"
+          "menu_two_finger": "Menu: hold two fingers for 2 s",
+          "duck_enabled": "Duck the TV during announcements"
         }
       }
     },

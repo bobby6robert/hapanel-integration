@@ -336,6 +336,10 @@ class Aurora:
             return await self._home_command(options, heard, session)
 
         p = self.person(options, sess["person"]) if sess["person"] else None
+        if p is None and sess["person"]:   # 1.9.1: imię z nagrania „Aurora” (np. „wiki”) zamiast id
+            p = self.match_person(options, sess["person"])
+            if p:
+                sess["person"] = str(p["id"])
         if p is None:
             p = self.match_person(options, heard)
             if p:
