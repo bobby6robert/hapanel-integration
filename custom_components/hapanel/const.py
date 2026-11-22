@@ -55,6 +55,7 @@ CONF_MENU_ANY_CORNER = "menu_any_corner"
 CONF_MENU_TWO_FINGER = "menu_two_finger"
 CONF_DUCK_ENTITY = "duck_entity"
 CONF_DUCK_LEVEL = "duck_level"
+CONF_DUCK_ENABLED = "duck_enabled"
 CONF_ANNOUNCE_VOLUME = "announce_volume"
 # ustawienia tylko po stronie HA
 CONF_STT = "stt_entity"

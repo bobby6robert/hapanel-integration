@@ -14,7 +14,7 @@ from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import PanelApi, build_config_params
-from .const import CONF_AWAY_MUTE, CONF_DUCK_ENTITY, CONF_DUCK_LEVEL, CONF_CLOCK_INFO, CONF_DASHBOARD, CONF_TEMP_IN, CONF_TEMP_OUT, CONF_TOKEN, DOMAIN
+from .const import CONF_ANNOUNCE_LISTEN, CONF_ANNOUNCE_VOLUME, CONF_DUCK_ENABLED, CONF_MENU_ANY_CORNER, CONF_MENU_TWO_FINGER, CONF_PROXIMITY_TALK, CONF_WAKE_SENSITIVITY, CONF_AWAY_MUTE, CONF_DUCK_ENTITY, CONF_DUCK_LEVEL, CONF_CLOCK_INFO, CONF_DASHBOARD, CONF_TEMP_IN, CONF_TEMP_OUT, CONF_TOKEN, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -64,7 +64,7 @@ class PanelCoordinator(DataUpdateCoordinator[dict]):
     # ---------- 1.9: ściszanie TV na czas komunikatu ----------
     async def async_duck_start(self) -> None:
         ent = self._entry.options.get(CONF_DUCK_ENTITY)
-        if not ent or self._duck_restore is not None:
+        if not ent or self._duck_restore is not None or not self._entry.options.get(CONF_DUCK_ENABLED, True):
             return
         st = self.hass.states.get(ent)
         if st is None or st.state not in ("on", "playing", "paused", "idle"):
@@ -88,6 +88,28 @@ class PanelCoordinator(DataUpdateCoordinator[dict]):
             await self.hass.services.async_call("media_player", "volume_set",
                                                 {"entity_id": ent, "volume_level": vol}, blocking=False)
 
+    def _settings_from_tablet(self, s: dict) -> None:
+        """2.12.1: zmiany zapisane w menu tabletu przepisuje do opcji integracji (żeby HA ich nie nadpisał)."""
+        b = lambda v: str(v) == "1"
+        i = lambda v: int(float(v))
+        m = {"announceListen": (CONF_ANNOUNCE_LISTEN, b), "awayMute": (CONF_AWAY_MUTE, b),
+             "menuAnyCorner": (CONF_MENU_ANY_CORNER, b), "menuTwoFinger": (CONF_MENU_TWO_FINGER, b),
+             "proximityTalk": (CONF_PROXIMITY_TALK, b), "duckEnabled": (CONF_DUCK_ENABLED, b),
+             "duckLevel": (CONF_DUCK_LEVEL, i), "announceVolume": (CONF_ANNOUNCE_VOLUME, i),
+             "wakeSensitivity": (CONF_WAKE_SENSITIVITY, lambda v: {"1": "low", "3": "high"}.get(str(v), "medium"))}
+        opts = dict(self._entry.options)
+        changed = False
+        for k, (key, conv) in m.items():
+            if k in s:
+                try:
+                    v = conv(s[k])
+                except (TypeError, ValueError):
+                    continue
+                if opts.get(key) != v:
+                    opts[key], changed = v, True
+        if changed:
+            self.hass.config_entries.async_update_entry(self._entry, options=opts)
+
     def _log(self, data: dict) -> None:
         ev = data.get("event")
         if ev not in ("wake_word", "wake_reject", "voice_start", "voice_end", "say", "converse"):
@@ -104,6 +126,9 @@ class PanelCoordinator(DataUpdateCoordinator[dict]):
         """Wypycha ustawienia z opcji integracji na tablet."""
         token = self._entry.data.get(CONF_TOKEN, "") if repair else ""
         params = build_config_params(dict(self._entry.options), token)
+        duck = self._entry.options.get(CONF_DUCK_ENTITY)
+        st = self.hass.states.get(duck) if duck else None
+        params["duckName"] = (st.attributes.get("friendly_name") or duck) if st else (duck or "")
         if self.webhook_id:        # adres webhooka dla zdarzeń z tabletu
             try:
                 params["webhook"] = webhook.async_generate_url(self.hass, self.webhook_id)
@@ -187,6 +212,8 @@ class PanelCoordinator(DataUpdateCoordinator[dict]):
             cur["clock"] = bool(data.get("clock"))
         self.async_set_updated_data(cur)
         self._log(data)
+        if event == "settings" and isinstance(data.get("data"), dict):
+            self._settings_from_tablet(data["data"])
         if event == "voice_end":
             self.hass.async_create_task(self.async_duck_end())
         self.hass.bus.async_fire(

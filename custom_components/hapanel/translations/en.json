@@ -144,7 +144,8 @@
           "duck_entity": "Duck this TV/speaker during announcements",
           "duck_level": "Duck level",
           "menu_any_corner": "Menu: 5 taps in any corner",
-          "menu_two_finger": "Menu: hold two fingers for 2 s"
+          "menu_two_finger": "Menu: hold two fingers for 2 s",
+          "duck_enabled": "Duck the TV during announcements"
         }
       }
     },

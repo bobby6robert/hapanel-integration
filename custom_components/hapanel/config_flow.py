@@ -31,7 +31,7 @@ from .const import (
     CONF_TTS, CONF_TTS_FALLBACK, CONF_VOICE, CONF_WAKE_PRESENCE, CONF_WAKE_QUIET_END, CONF_WAKE_QUIET_START,
     CONF_WAKE_WORD, CONF_WAKE_WORD_TEXT, DEFAULT_ASSISTANT_NAME, CONF_HOME_WORD, CONF_HOME_WORD_TEXT,
     CONF_ANNOUNCE_LISTEN, CONF_AWAY_MUTE, CONF_WAKE_SENSITIVITY, CONF_ANNOUNCE_VOLUME, CONF_DUCK_ENTITY,
-    CONF_DUCK_LEVEL, CONF_MENU_ANY_CORNER, CONF_MENU_TWO_FINGER,
+    CONF_DUCK_LEVEL, CONF_DUCK_ENABLED, CONF_MENU_ANY_CORNER, CONF_MENU_TWO_FINGER,
 )
 
 
@@ -73,6 +73,7 @@ def voice_schema(d: dict) -> vol.Schema:
         vol.Optional(CONF_ANNOUNCE_VOLUME, default=d.get(CONF_ANNOUNCE_VOLUME, 0)): num(0, 100, "%"),
         vol.Optional(CONF_DUCK_ENTITY, description=_sv(d, CONF_DUCK_ENTITY)):
             EntitySelector(EntitySelectorConfig(domain="media_player")),
+        vol.Optional(CONF_DUCK_ENABLED, default=d.get(CONF_DUCK_ENABLED, True)): BooleanSelector(),
         vol.Optional(CONF_DUCK_LEVEL, default=d.get(CONF_DUCK_LEVEL, 15)): num(0, 100, "%"),
         vol.Optional(CONF_MENU_ANY_CORNER, default=d.get(CONF_MENU_ANY_CORNER, True)): BooleanSelector(),
         vol.Optional(CONF_MENU_TWO_FINGER, default=d.get(CONF_MENU_TWO_FINGER, True)): BooleanSelector(),

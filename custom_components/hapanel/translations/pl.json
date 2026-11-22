@@ -144,7 +144,8 @@
           "duck_entity": "Ściszaj ten telewizor/głośnik na czas komunikatu",
           "duck_level": "Poziom ściszenia",
           "menu_any_corner": "Menu: 5 stuknięć w dowolny róg",
-          "menu_two_finger": "Menu: przytrzymaj dwa palce 2 s"
+          "menu_two_finger": "Menu: przytrzymaj dwa palce 2 s",
+          "duck_enabled": "Ściszaj telewizor na czas komunikatu"
         }
       }
     },
