@@ -136,7 +136,15 @@
           "wake_quiet_end": "Cisza nocna słowa – do (GG:MM)",
           "listen_wait": "Po komunikacie czekaj na odpowiedź",
           "silence_ms": "Koniec wypowiedzi po ciszy",
-          "auto_update": "Automatyczna aktualizacja aplikacji (jedno potwierdzenie na tablecie)"
+          "auto_update": "Automatyczna aktualizacja aplikacji (jedno potwierdzenie na tablecie)",
+          "announce_listen": "Po komunikacie Aurora słucha odpowiedzi",
+          "away_mute": "Aurora milczy, gdy nikogo nie ma w domu",
+          "wake_sensitivity": "Czułość słowa wybudzającego",
+          "announce_volume": "Głośność komunikatów (0 = bez zmiany)",
+          "duck_entity": "Ściszaj ten telewizor/głośnik na czas komunikatu",
+          "duck_level": "Poziom ściszenia",
+          "menu_any_corner": "Menu: 5 stuknięć w dowolny róg",
+          "menu_two_finger": "Menu: przytrzymaj dwa palce 2 s"
         }
       }
     },
@@ -287,6 +295,13 @@
         "auto": "Automatycznie (na baterii i w nocy)",
         "always": "Zawsze",
         "never": "Nigdy"
+      }
+    },
+    "wake_sensitivity": {
+      "options": {
+        "low": "Niska (mniej fałszywych)",
+        "medium": "Średnia",
+        "high": "Wysoka"
       }
     }
   }
