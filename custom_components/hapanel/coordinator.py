@@ -199,14 +199,14 @@ class PanelCoordinator(DataUpdateCoordinator[dict]):
         import time
         self._apps_at = time.monotonic()
         try:
-            res = await self.api.call("/apps")
+            res = await self.api.call("/apps", _timeout=40)
             if isinstance(res, list):
                 self.apps = res
-        except Exception:  # noqa: BLE001  (aplikacja starsza niż 2.14)
-            _LOGGER.debug("Nie pobrano listy aplikacji", exc_info=True)
+        except Exception as err:  # noqa: BLE001  (aplikacja starsza niż 2.14)
+            _LOGGER.warning("Nie pobrano listy aplikacji z tabletu: %s", err)
 
     async def async_clean_memory(self) -> dict:
-        res = await self.api.call("/cleanmem")
+        res = await self.api.call("/cleanmem", _timeout=40)
         if isinstance(res, dict):
             self.last_clean = {"przed_mb": res.get("before"), "po_mb": res.get("after"),
                                "czas": dt_util.now().isoformat(timespec="seconds")}
