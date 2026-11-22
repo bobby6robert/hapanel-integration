@@ -116,10 +116,10 @@ class PanelCoordinator(DataUpdateCoordinator[dict]):
 
     def _log(self, data: dict) -> None:
         ev = data.get("event")
-        if ev not in ("wake_word", "wake_reject", "voice_start", "voice_end", "say", "converse"):
+        if ev not in ("wake_word", "wake_reject", "voice_start", "voice_end", "say", "converse", "watchdog", "quiet"):
             return
         item = {"czas": dt_util.now().strftime("%d.%m %H:%M:%S"), "zdarzenie": ev}
-        for k in ("heard", "conf", "source", "text", "who", "dist"):
+        for k in ("heard", "conf", "source", "text", "who", "dist", "reason"):
             if k in data:
                 item[k] = data[k]
         self.voice_log.appendleft(item)

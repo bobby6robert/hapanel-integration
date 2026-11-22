@@ -14,6 +14,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
         PanelButton(c, entry, "stop_sound", "Zatrzymaj dźwięk", "/stopsound"),
         PanelButton(c, entry, "close_popup", "Zamknij podgląd", "/closepopup"),
         PanelButton(c, entry, "open_settings", "Otwórz ustawienia na tablecie", "/settings"),
+        PanelButton(c, entry, "quiet_hour", "Cisza na godzinę", "/quiet"),
         ApplyButton(c, entry),
         CheckUpdateButton(c, entry),
     ])
