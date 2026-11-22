@@ -37,6 +37,10 @@ class PanelCoordinator(DataUpdateCoordinator[dict]):
         self.saver_cams: list[str] = []
         self._saver_sent: dict | None = None
         self._saver_scan = 0.0
+        self.apps: list[dict] = []          # 1.11: aplikacje na tablecie
+        self._apps_at = 0.0
+        self.app_select = None
+        self.last_clean: dict = {}
 
     # ---------- 1.9: nikogo nie ma w domu → Aurora milczy ----------
     def _calc_home_empty(self) -> bool:
@@ -117,10 +121,10 @@ class PanelCoordinator(DataUpdateCoordinator[dict]):
 
     def _log(self, data: dict) -> None:
         ev = data.get("event")
-        if ev not in ("wake_word", "wake_reject", "voice_start", "voice_end", "say", "converse", "watchdog", "quiet"):
+        if ev not in ("wake_word", "wake_reject", "voice_start", "voice_end", "say", "converse", "watchdog", "quiet", "cleaned"):
             return
         item = {"czas": dt_util.now().strftime("%d.%m %H:%M:%S"), "zdarzenie": ev}
-        for k in ("heard", "conf", "source", "text", "who", "dist", "reason"):
+        for k in ("heard", "conf", "source", "text", "who", "dist", "reason", "before", "after"):
             if k in data:
                 item[k] = data[k]
         self.voice_log.appendleft(item)
@@ -173,6 +177,9 @@ class PanelCoordinator(DataUpdateCoordinator[dict]):
                 self._provisioning = False
         await self._push_clock(data)
         await self._push_saver(data)
+        import time
+        if time.monotonic() - self._apps_at > 3600:
+            await self.async_refresh_apps()
         return data
 
     def _value(self, entity_id: str | None, temp: bool) -> str | None:
@@ -187,6 +194,24 @@ class PanelCoordinator(DataUpdateCoordinator[dict]):
             return f"{float(st.state):.1f}".replace(".", ",")
         except (TypeError, ValueError):
             return None
+
+    async def async_refresh_apps(self) -> None:
+        import time
+        self._apps_at = time.monotonic()
+        try:
+            res = await self.api.call("/apps")
+            if isinstance(res, list):
+                self.apps = res
+        except Exception:  # noqa: BLE001  (aplikacja starsza niż 2.14)
+            _LOGGER.debug("Nie pobrano listy aplikacji", exc_info=True)
+
+    async def async_clean_memory(self) -> dict:
+        res = await self.api.call("/cleanmem")
+        if isinstance(res, dict):
+            self.last_clean = {"przed_mb": res.get("before"), "po_mb": res.get("after"),
+                               "czas": dt_util.now().isoformat(timespec="seconds")}
+        self.async_update_listeners()
+        return res
 
     async def _push_saver(self, data: dict) -> None:
         """Wygaszacz: adresy zdjęć i kamer (przez widok integracji) oraz pogoda – gdy się zmienią."""
@@ -260,6 +285,9 @@ class PanelCoordinator(DataUpdateCoordinator[dict]):
             if lg in ("pl", "en"):
                 self._tablet_lang, self._saver_sent = lg, None
             self._settings_from_tablet(data["data"])
+        if event == "cleaned":
+            self.last_clean = {"przed_mb": data.get("before"), "po_mb": data.get("after"),
+                               "czas": dt_util.now().isoformat(timespec="seconds"), "automatycznie": bool(data.get("auto"))}
         if event == "voice_end":
             self.hass.async_create_task(self.async_duck_end())
         self.hass.bus.async_fire(

@@ -22,7 +22,7 @@ AURORA_KEY = f"{DOMAIN}_aurora"
 
 _LOGGER = logging.getLogger(__name__)
 PLATFORMS = ["sensor", "binary_sensor", "switch", "number", "button", "notify", "text", "media_player",
-             "camera", "update"]
+             "camera", "update", "select"]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

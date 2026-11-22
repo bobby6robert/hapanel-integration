@@ -54,7 +54,8 @@
           "clock_info": "Zegar nocny: dodatkowa informacja (encja z tekstem)",
           "weather": "Pogoda (na zegar i wygaszacz)",
           "saver_folder": "Wygaszacz – folder ze zdjęciami (w /media, np. zdjecia)",
-          "saver_cameras": "Wygaszacz – kamery (do 4)"
+          "saver_cameras": "Wygaszacz – kamery (do 4)",
+          "auto_clean": "Automatyczne sprzątanie pamięci tabletu (co 3 h, restart panelu w niedzielę o 3:30)"
         }
       },
       "reauth_confirm": {
@@ -108,7 +109,8 @@
           "saver_mode": "Oszczędzanie baterii",
           "weather": "Pogoda (na zegar i wygaszacz)",
           "saver_folder": "Wygaszacz – folder ze zdjęciami (w /media, np. zdjecia)",
-          "saver_cameras": "Wygaszacz – kamery (do 4)"
+          "saver_cameras": "Wygaszacz – kamery (do 4)",
+          "auto_clean": "Automatyczne sprzątanie pamięci tabletu (co 3 h, restart panelu w niedzielę o 3:30)"
         }
       },
       "voice": {

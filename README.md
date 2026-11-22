@@ -29,6 +29,9 @@ Czego nie da się zrobić zdalnie: Android wymaga dotknięcia tabletu, żeby nad
 
 Wymaga Home Assistanta 2024.5 lub nowszego. Integracja odpytuje tablet co 15 s (`local_polling`). Wykrywanie wymaga, żeby HA i tablet były w tej samej sieci (mDNS nie przechodzi przez VLAN-y bez przekaźnika).
 
+## Nowości w 1.11 – sprzątanie tabletu
+Wymaga aplikacji **2.14**. Encje: „Aplikacje na tablecie” (lista w atrybutach), wybór „Aplikacja na tablecie”, przyciski „Odinstaluj wybraną aplikację”, „Wyłącz wybraną aplikację (ustawienia)”, „Zwolnij pamięć tabletu”, „Wyczyść pamięć podręczną panelu”, „Odśwież listę aplikacji”, czujnik „Ostatnie sprzątanie – odzyskano”. Odinstalowanie pokazuje okno systemu na tablecie – bez roota Android wymaga potwierdzenia.
+
 ## Nowości w 1.10 – język angielski
 - Rozmowa z Aurorą (rozpoznawanie mowy, odpowiedź, głos) idzie w języku tabletu: polskim albo angielskim (aplikacja **2.13**). Opis pogody na wygaszaczu też w języku tabletu.
 

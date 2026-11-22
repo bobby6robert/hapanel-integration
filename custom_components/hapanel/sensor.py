@@ -52,6 +52,8 @@ async def async_setup_entry(hass, entry, async_add_entities):
         PanelSensor(c, entry, "voice", "Aurora – stan rozmowy", "voice", measurement=False),
         PanelSensor(c, entry, "wake_word", "Aurora – słowo wybudzające", "wake_word", diag=True, measurement=False),
         VoiceLogSensor(c, entry),
+        AppsSensor(c, entry),
+        CleanSensor(c, entry),
     ])
     # czujniki wspólne Aurory (pamięć, gwiazdki, rozmowy) – tylko przy pierwszym tablecie
     first = sorted(e.entry_id for e in hass.config_entries.async_entries(DOMAIN))[:1]
@@ -161,3 +163,44 @@ class VoiceLogSensor(PanelEntity, SensorEntity):
         return {"wpisy": log,
                 "wybudzenia": sum(1 for e in log if e["zdarzenie"] == "wake_word"),
                 "odrzucone": sum(1 for e in log if e["zdarzenie"] == "wake_reject")}
+
+
+class AppsSensor(PanelEntity, SensorEntity):
+    """Liczba aplikacji na tablecie, które można usunąć lub wyłączyć (lista w atrybutach)."""
+
+    _attr_icon = "mdi:apps"
+
+    def __init__(self, c, entry):
+        super().__init__(c, entry, "apps", "Aplikacje na tablecie")
+
+    @property
+    def native_value(self):
+        return len([a for a in self.coordinator.apps if not a.get("protected")])
+
+    @property
+    def extra_state_attributes(self):
+        return {"aplikacje": [{"nazwa": a.get("name"), "pakiet": a.get("package"),
+                               "systemowa": a.get("system"), "wlaczona": a.get("enabled"),
+                               "mozna_usunac": a.get("removable")}
+                              for a in self.coordinator.apps if not a.get("protected")]}
+
+
+class CleanSensor(PanelEntity, SensorEntity):
+    """Ile pamięci odzyskało ostatnie sprzątanie."""
+
+    _attr_icon = "mdi:broom"
+    _attr_native_unit_of_measurement = "MB"
+
+    def __init__(self, c, entry):
+        super().__init__(c, entry, "cleaned", "Ostatnie sprzątanie – odzyskano")
+
+    @property
+    def native_value(self):
+        lc = self.coordinator.last_clean
+        if not lc or lc.get("po_mb") is None or lc.get("przed_mb") is None:
+            return None
+        return max(0, int(lc["po_mb"]) - int(lc["przed_mb"]))
+
+    @property
+    def extra_state_attributes(self):
+        return self.coordinator.last_clean

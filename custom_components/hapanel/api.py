@@ -11,7 +11,7 @@ from .const import (
     CONF_LISTEN_WAIT, CONF_PROXIMITY_TALK, CONF_SILENCE_MS, CONF_TALK_BUTTON, CONF_VOICE, CONF_WAKE_PRESENCE,
     CONF_WAKE_QUIET_END, CONF_WAKE_QUIET_START, CONF_WAKE_WORD, CONF_WAKE_WORD_TEXT, CONF_HOME_WORD, CONF_HOME_WORD_TEXT,
     CONF_ANNOUNCE_LISTEN, CONF_AWAY_MUTE, CONF_MENU_ANY_CORNER, CONF_MENU_TWO_FINGER, CONF_WAKE_SENSITIVITY,
-    CONF_DUCK_ENABLED, CONF_DUCK_LEVEL, CONF_ANNOUNCE_VOLUME,
+    CONF_DUCK_ENABLED, CONF_DUCK_LEVEL, CONF_ANNOUNCE_VOLUME, CONF_AUTO_CLEAN,
 )
 
 
@@ -66,7 +66,7 @@ def build_config_params(options: dict, new_token: str = "", code: str = "", pin:
         p["saverMode"] = str(options[CONF_SAVER_MODE])
     for key, name in ((CONF_MOTION, "motion"), (CONF_WAKE_ON_MOTION, "wakeOnMotion"),
                       (CONF_WAKE_ON_PROX, "wakeOnProximity"),
-                      (CONF_AUTO_BRIGHT, "auto"), (CONF_LOCK_TASK, "lockTask"),
+                      (CONF_AUTO_BRIGHT, "auto"), (CONF_LOCK_TASK, "lockTask"), (CONF_AUTO_CLEAN, "autoClean"),
                       (CONF_NIGHT_ENABLED, "nightEnabled")):
         if key in options:
             p[name] = "1" if options[key] else "0"
