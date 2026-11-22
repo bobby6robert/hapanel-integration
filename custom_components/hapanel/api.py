@@ -15,6 +15,25 @@ from .const import (
 )
 
 
+class PanelHttpError(aiohttp.ClientResponseError):
+    """Błąd HTTP z tabletu bez adresu w treści (adres zawiera token API – nie może trafić do logów)."""
+
+    def __str__(self) -> str:
+        return f"HTTP {self.status}"
+
+    __repr__ = __str__
+
+
+class PanelConnectionError(aiohttp.ClientError):
+    """Brak połączenia z tabletem – komunikat bez adresu i tokena."""
+
+
+def _safe(err: Exception) -> Exception:
+    if isinstance(err, aiohttp.ClientResponseError):
+        return PanelHttpError(err.request_info, err.history, status=err.status, message="")
+    return PanelConnectionError(f"Brak połączenia z tabletem ({type(err).__name__})")
+
+
 class PanelApi:
     """Klient HTTP aplikacji HA Panel na tablecie."""
 
@@ -26,21 +45,27 @@ class PanelApi:
     async def call(self, path: str, _timeout: float = 5, **params):
         if self._token:
             params["token"] = self._token
-        async with self._session.get(
-            self._base + path, params=params, timeout=aiohttp.ClientTimeout(total=_timeout)
-        ) as resp:
-            resp.raise_for_status()
-            return await resp.json(content_type=None)
+        try:
+            async with self._session.get(
+                self._base + path, params=params, timeout=aiohttp.ClientTimeout(total=_timeout)
+            ) as resp:
+                resp.raise_for_status()
+                return await resp.json(content_type=None)
+        except (aiohttp.ClientError, TimeoutError) as err:
+            raise _safe(err) from None
 
 
     async def get_bytes(self, path: str, **params) -> bytes:
         if self._token:
             params["token"] = self._token
-        async with self._session.get(
-            self._base + path, params=params, timeout=aiohttp.ClientTimeout(total=8)
-        ) as resp:
-            resp.raise_for_status()
-            return await resp.read()
+        try:
+            async with self._session.get(
+                self._base + path, params=params, timeout=aiohttp.ClientTimeout(total=8)
+            ) as resp:
+                resp.raise_for_status()
+                return await resp.read()
+        except (aiohttp.ClientError, TimeoutError) as err:
+            raise _safe(err) from None
 
 
 def build_config_params(options: dict, new_token: str = "", code: str = "", pin: str | None = None) -> dict:
