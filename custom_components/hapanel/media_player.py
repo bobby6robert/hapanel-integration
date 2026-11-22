@@ -14,7 +14,7 @@ from homeassistant.components.media_player.browse_media import async_process_pla
 from homeassistant.core import SupportsResponse
 from homeassistant.helpers import entity_platform
 
-from .const import DOMAIN
+from .const import CONF_ANNOUNCE_LISTEN, CONF_ANNOUNCE_VOLUME, DOMAIN
 from .entity import PanelEntity
 
 
@@ -45,7 +45,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
         {
             vol.Required("message"): str,
             vol.Optional("person", default=""): str,
-            vol.Optional("listen", default=True): bool,
+            vol.Optional("listen"): bool,
             vol.Optional("wait"): vol.All(vol.Coerce(int), vol.Range(min=3, max=30)),
             vol.Optional("volume"): vol.All(vol.Coerce(int), vol.Range(min=0, max=100)),
         },
@@ -115,11 +115,15 @@ class PanelPlayer(PanelEntity, MediaPlayerEntity):
     async def async_say(self, message: str, volume: int | None = None, wake: bool = False) -> None:
         """Komunikat głosowy na tablecie (głos Androida), opcjonalnie z głośnością i wybudzeniem."""
         params = {"text": message, "wake": "1" if wake else "0"}
+        if volume is None and int(self._entry.options.get(CONF_ANNOUNCE_VOLUME, 0) or 0) > 0:
+            volume = int(self._entry.options[CONF_ANNOUNCE_VOLUME])
+        await self.coordinator.async_duck_start()
+        self.coordinator._log({"event": "say", "text": message})
         if volume is not None:
             params["volume"] = volume
         await self._cmd("/tts", **params)
 
-    async def async_converse(self, message: str, person: str = "", listen: bool = True,
+    async def async_converse(self, message: str, person: str = "", listen: bool | None = None,
                              wait: int | None = None, volume: int | None = None) -> None:
         """Aurora mówi komunikat naturalnym głosem (TTS z ustawień), a potem słucha odpowiedzi."""
         from homeassistant.util import dt as dt_util
@@ -129,6 +133,13 @@ class PanelPlayer(PanelEntity, MediaPlayerEntity):
         if aurora is not None:
             url = await aurora.tts_url(dict(self._entry.options), message)
             aurora.last_announce[self._entry.entry_id] = {"text": message, "person": person, "at": dt_util.now()}
+        opts = self._entry.options
+        if listen is None:      # 1.9: domyślnie bez nasłuchu po komunikacie (opcja „Po komunikacie słuchaj”)
+            listen = bool(opts.get(CONF_ANNOUNCE_LISTEN, False))
+        if volume is None and int(opts.get(CONF_ANNOUNCE_VOLUME, 0) or 0) > 0:
+            volume = int(opts[CONF_ANNOUNCE_VOLUME])
+        await self.coordinator.async_duck_start()
+        self.coordinator._log({"event": "converse", "text": message})
         params = {"text": message, "person": person, "listen": "1" if listen else "0"}
         if url:
             params["url"] = url

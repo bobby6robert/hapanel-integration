@@ -30,6 +30,8 @@ from .const import (
     CONF_SILENCE_MS, CONF_SLEEP_SOUND, CONF_SLEEP_SOUND_MIN, CONF_STT, CONF_STT_FALLBACK, CONF_TALK_BUTTON,
     CONF_TTS, CONF_TTS_FALLBACK, CONF_VOICE, CONF_WAKE_PRESENCE, CONF_WAKE_QUIET_END, CONF_WAKE_QUIET_START,
     CONF_WAKE_WORD, CONF_WAKE_WORD_TEXT, DEFAULT_ASSISTANT_NAME, CONF_HOME_WORD, CONF_HOME_WORD_TEXT,
+    CONF_ANNOUNCE_LISTEN, CONF_AWAY_MUTE, CONF_WAKE_SENSITIVITY, CONF_ANNOUNCE_VOLUME, CONF_DUCK_ENTITY,
+    CONF_DUCK_LEVEL, CONF_MENU_ANY_CORNER, CONF_MENU_TWO_FINGER,
 )
 
 
@@ -62,7 +64,18 @@ def voice_schema(d: dict) -> vol.Schema:
         vol.Optional(CONF_SLEEP_SOUND, description=_sv(d, CONF_SLEEP_SOUND)): str,
         vol.Optional(CONF_SLEEP_SOUND_MIN, default=d.get(CONF_SLEEP_SOUND_MIN, 20)): num(5, 120, "min"),
         vol.Optional(CONF_TALK_BUTTON, default=d.get(CONF_TALK_BUTTON, True)): BooleanSelector(),
-        vol.Optional(CONF_PROXIMITY_TALK, default=d.get(CONF_PROXIMITY_TALK, True)): BooleanSelector(),
+        vol.Optional(CONF_PROXIMITY_TALK, default=d.get(CONF_PROXIMITY_TALK, False)): BooleanSelector(),
+        vol.Optional(CONF_ANNOUNCE_LISTEN, default=d.get(CONF_ANNOUNCE_LISTEN, False)): BooleanSelector(),
+        vol.Optional(CONF_AWAY_MUTE, default=d.get(CONF_AWAY_MUTE, True)): BooleanSelector(),
+        vol.Optional(CONF_WAKE_SENSITIVITY, default=d.get(CONF_WAKE_SENSITIVITY, "medium")): SelectSelector(
+            SelectSelectorConfig(options=["low", "medium", "high"], translation_key="wake_sensitivity",
+                                 mode=SelectSelectorMode.DROPDOWN)),
+        vol.Optional(CONF_ANNOUNCE_VOLUME, default=d.get(CONF_ANNOUNCE_VOLUME, 0)): num(0, 100, "%"),
+        vol.Optional(CONF_DUCK_ENTITY, description=_sv(d, CONF_DUCK_ENTITY)):
+            EntitySelector(EntitySelectorConfig(domain="media_player")),
+        vol.Optional(CONF_DUCK_LEVEL, default=d.get(CONF_DUCK_LEVEL, 15)): num(0, 100, "%"),
+        vol.Optional(CONF_MENU_ANY_CORNER, default=d.get(CONF_MENU_ANY_CORNER, True)): BooleanSelector(),
+        vol.Optional(CONF_MENU_TWO_FINGER, default=d.get(CONF_MENU_TWO_FINGER, True)): BooleanSelector(),
         vol.Optional(CONF_WAKE_WORD, default=d.get(CONF_WAKE_WORD, False)): BooleanSelector(),
         vol.Optional(CONF_WAKE_WORD_TEXT, default=d.get(CONF_WAKE_WORD_TEXT, "aurora")): str,
         vol.Optional(CONF_WAKE_PRESENCE, default=d.get(CONF_WAKE_PRESENCE, True)): BooleanSelector(),

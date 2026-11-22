@@ -136,7 +136,15 @@
           "wake_quiet_end": "Wake word quiet hours – until (HH:MM)",
           "listen_wait": "After an announcement wait for an answer",
           "silence_ms": "End of speech after silence",
-          "auto_update": "Automatic app updates (one confirmation on the tablet)"
+          "auto_update": "Automatic app updates (one confirmation on the tablet)",
+          "announce_listen": "Listen for a reply after announcements",
+          "away_mute": "Aurora stays silent when nobody is home",
+          "wake_sensitivity": "Wake word sensitivity",
+          "announce_volume": "Announcement volume (0 = unchanged)",
+          "duck_entity": "Duck this TV/speaker during announcements",
+          "duck_level": "Duck level",
+          "menu_any_corner": "Menu: 5 taps in any corner",
+          "menu_two_finger": "Menu: hold two fingers for 2 s"
         }
       }
     },
@@ -287,6 +295,13 @@
         "auto": "Automatic (on battery and at night)",
         "always": "Always",
         "never": "Never"
+      }
+    },
+    "wake_sensitivity": {
+      "options": {
+        "low": "Low (fewer false wakes)",
+        "medium": "Medium",
+        "high": "High"
       }
     }
   }

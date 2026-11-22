@@ -19,7 +19,7 @@
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/bobby6robert/hapanel-integration/issues",
   "requirements": [],
-  "version": "1.8.1",
+  "version": "1.9.0",
   "zeroconf": [
     "_hapanel._tcp.local."
   ]

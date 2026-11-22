@@ -51,6 +51,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
                     empty_value="OK"),
         PanelSensor(c, entry, "voice", "Aurora – stan rozmowy", "voice", measurement=False),
         PanelSensor(c, entry, "wake_word", "Aurora – słowo wybudzające", "wake_word", diag=True, measurement=False),
+        VoiceLogSensor(c, entry),
     ])
     # czujniki wspólne Aurory (pamięć, gwiazdki, rozmowy) – tylko przy pierwszym tablecie
     first = sorted(e.entry_id for e in hass.config_entries.async_entries(DOMAIN))[:1]
@@ -131,3 +132,32 @@ class PanelSensor(PanelEntity, SensorEntity):
         if isinstance(v, (int, float)):
             return v
         return str(v)[:255]
+
+
+class VoiceLogSensor(PanelEntity, SensorEntity):
+    """Aurora – dziennik: ostatnie wybudzenia, odrzucenia i komunikaty (do szukania „gadania samej”)."""
+
+    _attr_icon = "mdi:text-box-search-outline"
+
+    def __init__(self, c, entry):
+        super().__init__(c, entry, "voice_log", "Aurora – dziennik")
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        self.coordinator.log_listeners.append(self.async_write_ha_state)
+        self.async_on_remove(lambda: self.coordinator.log_listeners.remove(self.async_write_ha_state))
+
+    @property
+    def native_value(self):
+        log = self.coordinator.voice_log
+        if not log:
+            return "brak"
+        e = log[0]
+        return f"{e['czas']} {e['zdarzenie']}"[:250]
+
+    @property
+    def extra_state_attributes(self):
+        log = list(self.coordinator.voice_log)
+        return {"wpisy": log,
+                "wybudzenia": sum(1 for e in log if e["zdarzenie"] == "wake_word"),
+                "odrzucone": sum(1 for e in log if e["zdarzenie"] == "wake_reject")}
