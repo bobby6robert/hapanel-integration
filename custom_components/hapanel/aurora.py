@@ -84,6 +84,7 @@ class Aurora:
 
     def __init__(self, hass: HomeAssistant) -> None:
         self.hass = hass
+        self.lang = "pl"        # 1.10: język bieżącej rozmowy (z tabletu: pl / en)
         self._store: Store = Store(hass, STORAGE_VERSION, STORAGE_KEY)
         self.data: dict[str, Any] = {"memory": {}, "stars": {}, "log": []}
         self.sessions: dict[str, dict] = {}
@@ -215,7 +216,7 @@ class Aurora:
                 if prov is None:
                     continue
                 langs = list(getattr(prov, "supported_languages", []) or [])
-                lang = next((l for l in langs if str(l).lower().startswith("pl")), langs[0] if langs else "pl")
+                lang = next((l for l in langs if str(l).lower().startswith(self.lang)), langs[0] if langs else self.lang)
                 meta = stt.SpeechMetadata(
                     language=lang, format=stt.AudioFormats.WAV, codec=stt.AudioCodecs.PCM,
                     bit_rate=stt.AudioBitRates.BITRATE_16, sample_rate=stt.AudioSampleRates.SAMPLERATE_16000,
@@ -256,7 +257,7 @@ class Aurora:
 
                     ent = get_engine_instance(self.hass, eid)
                     langs = list(getattr(ent, "supported_languages", []) or [])
-                    lang = next((l for l in langs if str(l).lower().startswith("pl")), None)
+                    lang = next((l for l in langs if str(l).lower().startswith(self.lang)), None)
                 except Exception:  # noqa: BLE001
                     lang = None
                 media_id = tts.generate_media_source_id(self.hass, text, engine=eid, language=lang)
@@ -277,8 +278,10 @@ class Aurora:
                 continue
             tried.add(agent)
             try:
+                if self.lang == "en" and "Answer in English" not in text:
+                    text = text + "\n(Answer in English.)"
                 kwargs = dict(text=text, conversation_id=sess.get("conv_id"), context=Context(),
-                              language="pl", agent_id=agent)
+                              language=self.lang, agent_id=agent)
                 res = None
                 for attempt in range(2):
                     try:
@@ -304,7 +307,9 @@ class Aurora:
         return NO_CONNECTION, False
 
     # ------------------------------------------------------------------ jedna tura rozmowy
-    async def process(self, coordinator, entry, wav: bytes, session: str, person: str, source: str, turn: int) -> dict:
+    async def process(self, coordinator, entry, wav: bytes, session: str, person: str, source: str, turn: int,
+                      lang: str = "pl") -> dict:
+        self.lang = "en" if str(lang).lower().startswith("en") else "pl"
         options = dict(entry.options)
         sess = self.sessions.get(session)
         if sess is None:
@@ -394,7 +399,7 @@ class Aurora:
         try:
             res = await asyncio.wait_for(conversation.async_converse(
                 self.hass, text=heard, conversation_id=None, context=Context(),
-                language="pl", agent_id=agent), timeout=15)
+                language=self.lang, agent_id=agent), timeout=15)
             resp = res.response
             if getattr(resp, "response_type", None) != intent.IntentResponseType.ERROR:
                 reply = (resp.speech or {}).get("plain", {}).get("speech", "") or "Gotowe."

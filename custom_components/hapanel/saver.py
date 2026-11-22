@@ -14,6 +14,13 @@ from .const import DOMAIN
 EXT = (".jpg", ".jpeg", ".png", ".webp")
 KEY = secrets.token_urlsafe(16)   # klucz na czas działania HA (tablet dostaje go razem z adresami)
 
+WEATHER_EN = {
+    "clear-night": "Clear", "cloudy": "Cloudy", "exceptional": "Severe weather", "fog": "Fog", "hail": "Hail",
+    "lightning": "Thunderstorm", "lightning-rainy": "Thunderstorm and rain", "partlycloudy": "Partly cloudy",
+    "pouring": "Heavy rain", "rainy": "Rain", "snowy": "Snow", "snowy-rainy": "Sleet", "sunny": "Sunny",
+    "windy": "Windy", "windy-variant": "Windy and cloudy",
+}
+
 WEATHER_PL = {
     "clear-night": "Bezchmurnie", "cloudy": "Pochmurno", "exceptional": "Uwaga – pogoda", "fog": "Mgła",
     "hail": "Grad", "lightning": "Burza", "lightning-rainy": "Burza z deszczem", "partlycloudy": "Częściowe zachmurzenie",

@@ -50,7 +50,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 turn = 0
             result = await hass.data[AURORA_KEY].process(
                 coordinator, hass.config_entries.async_get_entry(entry.entry_id) or entry, body,
-                q.get("session", ""), q.get("person", ""), q.get("source", ""), turn)
+                q.get("session", ""), q.get("person", ""), q.get("source", ""), turn, q.get("lang", "pl"))
             return web.json_response(result)
         try:
             data = await request.json()

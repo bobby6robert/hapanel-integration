@@ -32,6 +32,7 @@ class PanelCoordinator(DataUpdateCoordinator[dict]):
         self.log_listeners: list = []
         self._duck_restore: float | None = None
         self._home_empty: bool | None = None
+        self._tablet_lang = "pl" if str(hass.config.language).startswith("pl") else "en"
         self.saver_photos: list[str] = []
         self.saver_cams: list[str] = []
         self._saver_sent: dict | None = None
@@ -211,7 +212,8 @@ class PanelCoordinator(DataUpdateCoordinator[dict]):
         st = self.hass.states.get(weather) if weather else None
         if st is not None and st.state not in ("unknown", "unavailable"):
             t = st.attributes.get("temperature")
-            w = saver.WEATHER_PL.get(st.state, st.state) + (f", {round(float(t))}°" if t is not None else "")
+            names = saver.WEATHER_EN if self._tablet_lang == "en" else saver.WEATHER_PL
+            w = names.get(st.state, st.state) + (f", {round(float(t))}°" if t is not None else "")
         params = {"photos": "\n".join(u("photo", i) for i in range(len(self.saver_photos))),
                   "cams": "\n".join(u("cam", i) for i in range(len(self.saver_cams))), "weather": w}
         restarted = (data.get("uptime") or 0) < 0.05
@@ -254,6 +256,9 @@ class PanelCoordinator(DataUpdateCoordinator[dict]):
         self.async_set_updated_data(cur)
         self._log(data)
         if event == "settings" and isinstance(data.get("data"), dict):
+            lg = data["data"].get("language")
+            if lg in ("pl", "en"):
+                self._tablet_lang, self._saver_sent = lg, None
             self._settings_from_tablet(data["data"])
         if event == "voice_end":
             self.hass.async_create_task(self.async_duck_end())

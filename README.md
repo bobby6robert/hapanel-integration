@@ -2,6 +2,8 @@
 
 # HA Panel – integracja Home Assistant
 
+🇵🇱 Polski · 🇬🇧 [English](README.en.md)
+
 Integracja lokalna dla tabletu z aplikacją **[HA Panel](https://github.com/bobby6robert/hapanel-app)** (panel ścienny na Androidzie). Zastępuje integrację Fully Kiosk Browser i nie wymaga płatnej licencji.
 
 ## Instalacja
@@ -26,6 +28,9 @@ PIN do ustawień jest tylko do zapisu: idzie prosto na tablet i nie jest przecho
 Czego nie da się zrobić zdalnie: Android wymaga dotknięcia tabletu, żeby nadać uprawnienie mikrofonu i autostartu oraz wyłączyć optymalizację baterii. Czujnik „Brakujące uprawnienia” pokazuje, co jeszcze trzeba kliknąć na tablecie.
 
 Wymaga Home Assistanta 2024.5 lub nowszego. Integracja odpytuje tablet co 15 s (`local_polling`). Wykrywanie wymaga, żeby HA i tablet były w tej samej sieci (mDNS nie przechodzi przez VLAN-y bez przekaźnika).
+
+## Nowości w 1.10 – język angielski
+- Rozmowa z Aurorą (rozpoznawanie mowy, odpowiedź, głos) idzie w języku tabletu: polskim albo angielskim (aplikacja **2.13**). Opis pogody na wygaszaczu też w języku tabletu.
 
 ## Nowości w 1.9 – ustawienia Aurory, wygaszacz, ściszanie TV
 Wymaga aplikacji **HA Panel 2.12**.
