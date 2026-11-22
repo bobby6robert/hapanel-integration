@@ -54,7 +54,8 @@
           "clock_info": "Night clock: extra info (text entity)",
           "weather": "Weather (clock and screensaver)",
           "saver_folder": "Screensaver – photo folder (inside /media, e.g. photos)",
-          "saver_cameras": "Screensaver – cameras (up to 4)"
+          "saver_cameras": "Screensaver – cameras (up to 4)",
+          "auto_clean": "Automatic tablet memory cleanup (every 3 h, panel restart on Sunday 3:30)"
         }
       },
       "reauth_confirm": {
@@ -108,7 +109,8 @@
           "saver_mode": "Battery saver",
           "weather": "Weather (clock and screensaver)",
           "saver_folder": "Screensaver – photo folder (inside /media, e.g. photos)",
-          "saver_cameras": "Screensaver – cameras (up to 4)"
+          "saver_cameras": "Screensaver – cameras (up to 4)",
+          "auto_clean": "Automatic tablet memory cleanup (every 3 h, panel restart on Sunday 3:30)"
         }
       },
       "voice": {
