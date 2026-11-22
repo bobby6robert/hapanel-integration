@@ -29,6 +29,9 @@ Requires HA Panel 2.7+ (all options below: 2.12+).
 - When the tablet recognises a household voice from the “Record Aurora” recordings, the conversation knows who is speaking.
 - **Language (1.10):** the conversation follows the tablet language (Polish or English).
 
+## Tablet cleanup (1.11)
+Requires app 2.14. Entities: “Apps on the tablet” sensor (list in attributes), app select, buttons to uninstall or disable the selected app (system dialog on the tablet), free tablet memory, clear panel cache, refresh app list, and a “last cleanup” sensor.
+
 ## Screensaver
 
 Choose a `weather` entity, a photo folder inside `/media` and up to 4 cameras in the options. Images are served through the integration view with a random key, so no HA token is stored on the tablet.
