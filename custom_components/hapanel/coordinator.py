@@ -157,7 +157,7 @@ class PanelCoordinator(DataUpdateCoordinator[dict]):
         try:
             data = await self.api.call("/status")
         except Exception as err:  # noqa: BLE001
-            raise UpdateFailed(f"Brak połączenia z tabletem: {err}") from err
+            raise UpdateFailed(f"Brak połączenia z tabletem: {err}") from None
 
         # Tablet po ponownej instalacji aplikacji jest niesparowany: wymagany kod z ekranu (reauth).
         if data.get("paired") is False and self._entry.data.get(CONF_TOKEN):
