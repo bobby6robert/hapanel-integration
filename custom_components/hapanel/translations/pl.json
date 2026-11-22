@@ -51,7 +51,10 @@
           "wake_on_proximity": "Wybudzaj ekran czujnikiem zbliżeniowym (ręka przy ekranie)",
           "temp_out": "Zegar nocny: temperatura na zewnątrz",
           "temp_in": "Zegar nocny: temperatura w domu",
-          "clock_info": "Zegar nocny: dodatkowa informacja (encja z tekstem)"
+          "clock_info": "Zegar nocny: dodatkowa informacja (encja z tekstem)",
+          "weather": "Pogoda (na zegar i wygaszacz)",
+          "saver_folder": "Wygaszacz – folder ze zdjęciami (w /media, np. zdjecia)",
+          "saver_cameras": "Wygaszacz – kamery (do 4)"
         }
       },
       "reauth_confirm": {
@@ -102,7 +105,10 @@
           "temp_out": "Zegar nocny: temperatura na zewnątrz",
           "temp_in": "Zegar nocny: temperatura w domu",
           "clock_info": "Zegar nocny: dodatkowa informacja (encja z tekstem)",
-          "saver_mode": "Oszczędzanie baterii"
+          "saver_mode": "Oszczędzanie baterii",
+          "weather": "Pogoda (na zegar i wygaszacz)",
+          "saver_folder": "Wygaszacz – folder ze zdjęciami (w /media, np. zdjecia)",
+          "saver_cameras": "Wygaszacz – kamery (do 4)"
         }
       },
       "voice": {

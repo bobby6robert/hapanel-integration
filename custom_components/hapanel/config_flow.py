@@ -31,7 +31,7 @@ from .const import (
     CONF_TTS, CONF_TTS_FALLBACK, CONF_VOICE, CONF_WAKE_PRESENCE, CONF_WAKE_QUIET_END, CONF_WAKE_QUIET_START,
     CONF_WAKE_WORD, CONF_WAKE_WORD_TEXT, DEFAULT_ASSISTANT_NAME, CONF_HOME_WORD, CONF_HOME_WORD_TEXT,
     CONF_ANNOUNCE_LISTEN, CONF_AWAY_MUTE, CONF_WAKE_SENSITIVITY, CONF_ANNOUNCE_VOLUME, CONF_DUCK_ENTITY,
-    CONF_DUCK_LEVEL, CONF_DUCK_ENABLED, CONF_MENU_ANY_CORNER, CONF_MENU_TWO_FINGER,
+    CONF_DUCK_LEVEL, CONF_DUCK_ENABLED, CONF_SAVER_FOLDER, CONF_SAVER_CAMERAS, CONF_WEATHER, CONF_MENU_ANY_CORNER, CONF_MENU_TWO_FINGER,
 )
 
 
@@ -117,6 +117,11 @@ def settings_schema(d: dict) -> vol.Schema:
             EntitySelector(EntitySelectorConfig(domain="sensor", device_class="temperature")),
         vol.Optional(CONF_CLOCK_INFO, description={"suggested_value": d.get(CONF_CLOCK_INFO)}):
             EntitySelector(EntitySelectorConfig(domain=["sensor", "input_text"])),
+        vol.Optional(CONF_WEATHER, description={"suggested_value": d.get(CONF_WEATHER)}):
+            EntitySelector(EntitySelectorConfig(domain="weather")),
+        vol.Optional(CONF_SAVER_FOLDER, default=d.get(CONF_SAVER_FOLDER, "")): str,
+        vol.Optional(CONF_SAVER_CAMERAS, description={"suggested_value": d.get(CONF_SAVER_CAMERAS)}):
+            EntitySelector(EntitySelectorConfig(domain="camera", multiple=True)),
         vol.Optional(CONF_ZOOM, default=d.get(CONF_ZOOM, 100)): int,
         vol.Optional(CONF_INJECT_CSS, default=d.get(CONF_INJECT_CSS, "")):
             TextSelector(TextSelectorConfig(multiline=True)),

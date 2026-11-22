@@ -14,7 +14,7 @@ from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import PanelApi, build_config_params
-from .const import CONF_ANNOUNCE_LISTEN, CONF_ANNOUNCE_VOLUME, CONF_DUCK_ENABLED, CONF_MENU_ANY_CORNER, CONF_MENU_TWO_FINGER, CONF_PROXIMITY_TALK, CONF_WAKE_SENSITIVITY, CONF_AWAY_MUTE, CONF_DUCK_ENTITY, CONF_DUCK_LEVEL, CONF_CLOCK_INFO, CONF_DASHBOARD, CONF_TEMP_IN, CONF_TEMP_OUT, CONF_TOKEN, DOMAIN
+from .const import CONF_SAVER_FOLDER, CONF_SAVER_CAMERAS, CONF_WEATHER, CONF_ANNOUNCE_LISTEN, CONF_ANNOUNCE_VOLUME, CONF_DUCK_ENABLED, CONF_MENU_ANY_CORNER, CONF_MENU_TWO_FINGER, CONF_PROXIMITY_TALK, CONF_WAKE_SENSITIVITY, CONF_AWAY_MUTE, CONF_DUCK_ENTITY, CONF_DUCK_LEVEL, CONF_CLOCK_INFO, CONF_DASHBOARD, CONF_TEMP_IN, CONF_TEMP_OUT, CONF_TOKEN, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -32,6 +32,10 @@ class PanelCoordinator(DataUpdateCoordinator[dict]):
         self.log_listeners: list = []
         self._duck_restore: float | None = None
         self._home_empty: bool | None = None
+        self.saver_photos: list[str] = []
+        self.saver_cams: list[str] = []
+        self._saver_sent: dict | None = None
+        self._saver_scan = 0.0
 
     # ---------- 1.9: nikogo nie ma w domu → Aurora milczy ----------
     def _calc_home_empty(self) -> bool:
@@ -115,7 +119,7 @@ class PanelCoordinator(DataUpdateCoordinator[dict]):
         if ev not in ("wake_word", "wake_reject", "voice_start", "voice_end", "say", "converse"):
             return
         item = {"czas": dt_util.now().strftime("%d.%m %H:%M:%S"), "zdarzenie": ev}
-        for k in ("heard", "conf", "source", "text"):
+        for k in ("heard", "conf", "source", "text", "who", "dist"):
             if k in data:
                 item[k] = data[k]
         self.voice_log.appendleft(item)
@@ -167,6 +171,7 @@ class PanelCoordinator(DataUpdateCoordinator[dict]):
             finally:
                 self._provisioning = False
         await self._push_clock(data)
+        await self._push_saver(data)
         return data
 
     def _value(self, entity_id: str | None, temp: bool) -> str | None:
@@ -181,6 +186,42 @@ class PanelCoordinator(DataUpdateCoordinator[dict]):
             return f"{float(st.state):.1f}".replace(".", ",")
         except (TypeError, ValueError):
             return None
+
+    async def _push_saver(self, data: dict) -> None:
+        """Wygaszacz: adresy zdjęć i kamer (przez widok integracji) oraz pogoda – gdy się zmienią."""
+        import time
+        from homeassistant.helpers.network import get_url
+        from . import saver
+        o = self._entry.options
+        folder, cams, weather = o.get(CONF_SAVER_FOLDER), o.get(CONF_SAVER_CAMERAS) or [], o.get(CONF_WEATHER)
+        if not (folder or cams or weather):
+            return
+        if time.monotonic() - self._saver_scan > 3600 or self._saver_sent is None:
+            self._saver_scan = time.monotonic()
+            path = saver.photo_folder(self.hass, folder or "")
+            self.saver_photos = await self.hass.async_add_executor_job(saver.scan_photos, path) if path else []
+        self.saver_cams = [c for c in (cams if isinstance(cams, list) else [cams])][:4]
+        try:
+            base = get_url(self.hass, allow_external=False, allow_cloud=False)
+        except Exception:  # noqa: BLE001
+            base = get_url(self.hass)
+        eid = self._entry.entry_id
+        u = lambda kind, i: f"{base}/api/hapanel/saver/{eid}/{kind}/{i}?k={saver.KEY}"
+        w = ""
+        st = self.hass.states.get(weather) if weather else None
+        if st is not None and st.state not in ("unknown", "unavailable"):
+            t = st.attributes.get("temperature")
+            w = saver.WEATHER_PL.get(st.state, st.state) + (f", {round(float(t))}°" if t is not None else "")
+        params = {"photos": "\n".join(u("photo", i) for i in range(len(self.saver_photos))),
+                  "cams": "\n".join(u("cam", i) for i in range(len(self.saver_cams))), "weather": w}
+        restarted = (data.get("uptime") or 0) < 0.05
+        if params == self._saver_sent and not restarted:
+            return
+        try:
+            await self.api.call("/saver", **params)
+            self._saver_sent = params
+        except Exception:  # noqa: BLE001
+            _LOGGER.debug("Nie wysłano danych wygaszacza", exc_info=True)
 
     async def _push_clock(self, data: dict) -> None:
         """Temperatury i informacja na zegar nocny – tylko gdy się zmieniły albo tablet się zrestartował."""
