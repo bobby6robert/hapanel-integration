@@ -1,3 +1,5 @@
+<img src="images/logo.png" width="96" align="right" alt="RB IT Academy">
+
 # HA Panel – integracja Home Assistant
 
 Integracja lokalna dla tabletu z aplikacją **[HA Panel](https://github.com/bobby6robert/hapanel-app)** (panel ścienny na Androidzie). Zastępuje integrację Fully Kiosk Browser i nie wymaga płatnej licencji.
@@ -25,6 +27,16 @@ Czego nie da się zrobić zdalnie: Android wymaga dotknięcia tabletu, żeby nad
 
 Wymaga Home Assistanta 2024.5 lub nowszego. Integracja odpytuje tablet co 15 s (`local_polling`). Wykrywanie wymaga, żeby HA i tablet były w tej samej sieci (mDNS nie przechodzi przez VLAN-y bez przekaźnika).
 
+## Nowości w 1.9 – ustawienia Aurory, wygaszacz, ściszanie TV
+Wymaga aplikacji **HA Panel 2.12**.
+- **Nowe opcje Aurory:** nasłuch po komunikacie (domyślnie wyłączony), cisza, gdy nikogo nie ma w domu (`zone.home` / osoby), czułość słowa wybudzającego, głośność komunikatów, sposoby wejścia do menu.
+- **Ściszanie telewizora:** wybrany odtwarzacz jest ściszany na czas komunikatu (`hapanel.say`, `hapanel.converse`) i wraca do poprzedniej głośności.
+- **Wygaszacz:** pogoda (encja `weather`), folder ze zdjęciami w `/media` i do 4 kamer. Obrazy idą przez widok integracji z losowym kluczem, bez tokena HA na tablecie.
+- **Rozpoznany domownik:** gdy tablet rozpozna głos z nagrań „Aurora”, rozmowa od razu wie, kto mówi.
+- **Ustawienia z tabletu:** zmiany zapisane w menu tabletu trafiają do opcji integracji.
+- Nowe encje: czujnik **„Aurora – dziennik”** (ostatnie 30 zdarzeń: wybudzenia, odrzucenia, komunikaty, strażnik), przyciski **„Otwórz ustawienia na tablecie”** i **„Cisza na godzinę”**.
+- Ikona integracji w HA (logo RB IT Academy).
+
 ## Nowości w 1.6 – Aurora (rozmowa głosowa)
 Wymaga aplikacji **HA Panel 2.7** (starsza aplikacja działa jak dotąd, a `hapanel.converse` mówi wtedy zwykłym komunikatem).
 - **Rozmowa z tabletem:** tablet wysyła nagranie do webhooka integracji, a integracja robi rozpoznanie mowy (STT), odpowiedź (agent konwersacji) i głos (TTS). Zapasowe silniki działają bez internetu.
@@ -51,12 +63,12 @@ Połączenie wersji 1.3 i 1.4 w jedną (wymaga aplikacji HA Panel 2.5; starsza a
 
 | Typ | Encja |
 |---|---|
-| Czujnik | bateria, światło; diagnostyczne: temperatura i kondycja baterii, sygnał Wi-Fi, wolna pamięć, czas od uruchomienia, ostatnie załadowanie strony, wersja WebView, adres IP, wersja aplikacji, aktualny adres, brakujące uprawnienia |
+| Czujnik | bateria, światło; diagnostyczne: temperatura i kondycja baterii, sygnał Wi-Fi, wolna pamięć, czas od uruchomienia, ostatnie załadowanie strony, wersja WebView, adres IP, wersja aplikacji, aktualny adres, brakujące uprawnienia; Aurora – stan rozmowy, Aurora – dziennik |
 | Czujnik binarny | ładowanie, ruch, ekran włączony, pora nocna, zegar nocny, adres awaryjny (diagnostyka), zbliżenie (jeśli tablet ma czujnik) |
 | Przełącznik | ekran (budzenie/uśpienie), automatyczna jasność, tryb nocny |
 | Liczba | jasność (0-255) |
 | Odtwarzacz | dzwonki, komunikaty `tts.speak`, głośność, stop |
-| Przycisk | odśwież dashboard, restartuj panel, zatrzymaj dźwięk, zamknij podgląd, zastosuj ustawienia na tablecie, sprawdź aktualizacje |
+| Przycisk | odśwież dashboard, restartuj panel, zatrzymaj dźwięk, zamknij podgląd, otwórz ustawienia na tablecie, cisza na godzinę, zastosuj ustawienia na tablecie, sprawdź aktualizacje |
 | Kamera | zrzut ekranu tabletu na żądanie (bez strumienia, więc nie obciąża HA) |
 | Aktualizacja | wersja aplikacji z GitHub Releases, instalacja jednym kliknięciem |
 | Tekst | aktualny adres panelu (wpisanie nowego ładuje go) |
